@@ -1,0 +1,3 @@
+bucket = "zetech.terraform-state.homelab"
+key    = "foundational/account/terraform.tfstate"
+region = "ap-southeast-2"
