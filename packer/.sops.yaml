@@ -1,0 +1,3 @@
+creation_rules:
+  - path_regex: .*/homelab.*
+    kms: arn:aws:kms:ap-southeast-2:780008751869:key/450e7cee-e438-434c-b268-50fc1146cd1d
