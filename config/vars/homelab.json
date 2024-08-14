@@ -8,29 +8,41 @@
     "master_nodes": [
         {
             "hostname": "talos-master-00",
-            "address": "10.30.0.10"
+            "address": "10.30.0.10",
+            "cpu": "4",
+            "mem": 6144
         },
         {
             "hostname": "talos-master-01",
-            "address": "10.30.0.11"
+            "address": "10.30.0.11",
+            "cpu": "4",
+            "mem": 6144
         },
         {
             "hostname": "talos-master-02",
-            "address": "10.30.0.13"
+            "address": "10.30.0.13",
+            "cpu": "4",
+            "mem": 6144
         }
     ],
     "worker_nodes": [
         {
             "hostname": "talos-worker-00",
-            "address": "10.30.0.20"
+            "address": "10.30.0.20",
+            "cpu": "4",
+            "mem": 6144
         },
         {
             "hostname": "talos-worker-01",
-            "address": "10.30.0.21"
+            "address": "10.30.0.21",
+            "cpu": "4",
+            "mem": 6144
         },
         {
             "hostname": "talos-worker-02",
-            "address": "10.30.0.22"
+            "address": "10.30.0.22",
+            "cpu": "4",
+            "mem": 6144
         }
     ]
 }
