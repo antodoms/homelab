@@ -15,11 +15,6 @@ terraform {
       version = "0.5.0"
     }
 
-    proxmox = {
-      source = "bpg/proxmox"
-      version = "0.61.1"
-    }
-
     helm = {
       source  = "hashicorp/helm"
       version = "2.14.0"
@@ -35,11 +30,4 @@ terraform {
 
 provider "aws" {
   region = var.aws_region
-}
-
-provider "proxmox" {
-  endpoint = "https://10.27.27.4:8006/"
-  username = "root@pam"
-  password = "asta#123"
-  insecure = true
 }
