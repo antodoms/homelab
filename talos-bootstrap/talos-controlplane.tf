@@ -1,11 +1,11 @@
 data "talos_machine_configuration" "controller" {
-  count = length(var.master_nodes)
+  count = length(local.master_nodes)
   cluster_name     = local.cluster_name
-  cluster_endpoint = var.cluster_endpoint
+  cluster_endpoint = local.cluster_endpoint
   machine_secrets  = talos_machine_secrets.this.machine_secrets
   machine_type     = "controlplane"
-  talos_version = var.talos_version
-  kubernetes_version = var.kubernetes_version
+  talos_version = local.talos_version
+  kubernetes_version = local.kubernetes_version
   examples           = false
   docs               = false
   config_patches = [
@@ -13,27 +13,27 @@ data "talos_machine_configuration" "controller" {
     yamlencode({
       machine = {
         certSANs = [
-          var.cluster_vip,
-          var.master_nodes[count.index].address,
+          local.cluster_vip,
+          local.master_nodes[count.index].address,
           "localhost"
         ]
         install = {
           disk = "/dev/sda"
         }
         network = {
-          hostname = var.master_nodes[count.index].hostname
+          hostname = local.master_nodes[count.index].hostname
           nameservers = [
-            var.gateway_ip
+            local.gateway_ip
           ]
           interfaces = [
             {
               interface = "eth0"
               dhcp      = false
               addresses = [
-                "${var.master_nodes[count.index].address}/24"
+                "${local.master_nodes[count.index].address}/24"
               ]
               vip = {
-                ip = var.cluster_vip
+                ip = local.cluster_vip
               }
             }
           ]

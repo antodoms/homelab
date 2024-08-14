@@ -28,5 +28,5 @@ output "kubeconfig_host" {
 }
 
 output "load_balancer_ip_range" {
-  value = var.cluster_lb_ip_range
+  value = local.cluster_lb_ip_range
 }

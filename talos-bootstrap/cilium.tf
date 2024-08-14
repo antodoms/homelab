@@ -34,8 +34,8 @@ locals {
       spec = {
         blocks = [
           {
-            start = split("-", var.cluster_lb_ip_range)[0]
-            stop  = split("-", var.cluster_lb_ip_range)[1]
+            start = split("-", local.cluster_lb_ip_range)[0]
+            stop  = split("-", local.cluster_lb_ip_range)[1]
           },
         ]
       }

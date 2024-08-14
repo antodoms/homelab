@@ -44,6 +44,7 @@ variable "talos_version" {
 
 variable "gateway_ip" {
   type = string
+  default = null
 }
 
 variable "master_nodes" {
@@ -53,6 +54,7 @@ variable "master_nodes" {
     cpu = string
     mem = number
   }))
+  default = null
 }
 
 variable "worker_nodes" {
@@ -62,8 +64,15 @@ variable "worker_nodes" {
     cpu = string
     mem = number
   }))
+  default = null
 }
 
 variable "kubernetes_version" {
   type = string
+  default = null
+}
+
+variable "config_branch" {
+  type = string
+  default = "refs/heads/main"
 }
