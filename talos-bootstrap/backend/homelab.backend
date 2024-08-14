@@ -1,0 +1,4 @@
+bucket  = "zetech.terraform-state.homelab"
+key     = "foundational/talos-bootstrap/terraform.tfstate"
+region  = "ap-southeast-2"
+encrypt = true
