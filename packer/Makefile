@@ -27,19 +27,13 @@ set-env:
 prep: set-env ## Prepare a new workspace (environment) if needed, configure the tfstate backend, update any modules, and switch to the workspace
 	@packer init -upgrade .
 
-build: prep
+apply: prep
 	@packer build -only=release.proxmox.talos -var-file="$(VARS)" \
-	-var proxmox_url=`sops --decrypt secrets/$(ACCOUNT).enc.yaml | yq .proxmox_url` \
-	-var proxmox_username=`sops --decrypt secrets/$(ACCOUNT).enc.yaml | yq .proxmox_username` \
-	-var proxmox_token=`sops --decrypt secrets/$(ACCOUNT).enc.yaml | yq .proxmox_token` \
-	-var proxmox_nodename=`sops --decrypt secrets/$(ACCOUNT).enc.yaml | yq .proxmox_nodename` \
-	-var proxmox_storage=`sops --decrypt secrets/$(ACCOUNT).enc.yaml | yq .proxmox_storage` \
-	-var proxmox_bridge=`sops --decrypt secrets/$(ACCOUNT).enc.yaml | yq .proxmox_bridge` \
-	-var iso_file_path=`sops --decrypt secrets/$(ACCOUNT).enc.yaml | yq .iso_file_path` \
+	-var proxmox_url=`sops --decrypt ../config/secrets/$(ACCOUNT).enc.yaml | yq .proxmox_url` \
+	-var proxmox_username=`sops --decrypt ../config/secrets/$(ACCOUNT).enc.yaml | yq .proxmox_username` \
+	-var proxmox_password=`sops --decrypt ../config/secrets/$(ACCOUNT).enc.yaml | yq .proxmox_password` \
+	-var proxmox_nodename=`sops --decrypt ../config/secrets/$(ACCOUNT).enc.yaml | yq .proxmox_nodename` \
+	-var proxmox_storage=`sops --decrypt ../config/secrets/$(ACCOUNT).enc.yaml | yq .proxmox_storage` \
+	-var proxmox_bridge=`sops --decrypt ../config/secrets/$(ACCOUNT).enc.yaml | yq .proxmox_bridge` \
+	-var iso_file_path=`sops --decrypt ../config/secrets/$(ACCOUNT).enc.yaml | yq .iso_file_path` \
 	.
-
-encrypt:
-	sops --encrypt secrets/$(ACCOUNT).yaml > secrets/$(ACCOUNT).enc.yaml
-
-decrypt:
-	sops --decrypt secrets/$(ACCOUNT).enc.yaml > secrets/$(ACCOUNT).yaml

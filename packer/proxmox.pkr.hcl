@@ -10,7 +10,7 @@ packer {
 source "proxmox" "talos" {
   proxmox_url              = var.proxmox_url
   username                 = var.proxmox_username
-  password                 = var.proxmox_token
+  password                 = var.proxmox_password
   node                     = var.proxmox_nodename
   insecure_skip_tls_verify = true
 

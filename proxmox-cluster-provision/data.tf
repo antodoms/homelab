@@ -1,5 +1,5 @@
 data "sops_file" "secret" {
-  source_file = "secrets/${var.account}.enc.yaml"
+  source_file = "../config/secrets/${var.account}.enc.yaml"
 }
 
 locals {
