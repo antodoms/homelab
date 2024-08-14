@@ -1,3 +1,7 @@
+data "sops_file" "secrets" {
+  source_file = "../config/secrets/${var.account}.enc.yaml"
+}
+
 data "aws_s3_object" "config" {
   bucket = "zetech.terraform-state.${var.account}"
   key    = "config${var.config_branch == "refs/heads/main" ? "/" : "/${var.config_branch}/"}${var.account}.json"

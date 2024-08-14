@@ -1,0 +1,45 @@
+{{- if and (.Values.metallb) (.Values.metallb.enable) -}}
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: metallb
+  namespace: {{ .Values.argoNamespace | default "argocd" }}
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: {{ .Values.argoProject | default "default" }}
+  source:
+    repoURL: {{ .Values.repoUrl }}
+    path: add-ons/metallb
+    targetRevision: {{ .Values.targetRevision }}
+    kustomize:
+      patches:
+        - target:
+            kind: IPAddressPool
+            name: default
+          patch: |-
+            - op: replace
+              path: /spec/addresses/0
+              value: {{ .Values.metallb.addressPool }}
+  destination:
+    server: {{ .Values.destinationServer | default "https://kubernetes.default.svc" }}
+    namespace: metallb-system
+  syncPolicy:
+    syncOptions:
+      - RespectIgnoreDifferences=true
+    automated:
+      selfHeal: true
+      prune: true
+    retry:
+      limit: 1
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 1m
+  ignoreDifferences:
+    - group: "*"
+      kind: "*"
+      jsonPointers:
+        - spec/conversion/webhook/clientConfig/caBundle
+
+{{- end -}}

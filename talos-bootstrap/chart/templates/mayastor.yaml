@@ -1,0 +1,38 @@
+{{- if ((.Values.mayastor).enable) }}
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: mayastor
+  namespace: {{ .Values.argoNamespace | default "argocd" }}
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: {{ .Values.argoProject | default "default" }}
+  source:
+    repoURL: {{ required "repoUrl value is required" .Values.repoUrl }}
+    path: add-ons/mayastor
+    targetRevision: {{ .Values.targetRevision }}
+    helm:
+      values: |
+        mayastor:
+        {{- toYaml .Values.mayastor | nindent 10 }}
+  destination:
+    server: {{ .Values.destinationServer | default "https://kubernetes.default.svc" }}
+    namespace: mayastor
+  syncPolicy:
+    managedNamespaceMetadata:
+      labels:
+        pod-security.kubernetes.io/enforce: privileged
+        pod-security.kubernetes.io/enforce-version: latest
+    automated:
+      selfHeal: true
+      prune: true
+    syncOptions:
+      - CreateNamespace={{ .Values.mayastor.createNamespace }}
+    retry:
+      limit: 1
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 1m
+  {{- end -}}

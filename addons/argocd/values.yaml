@@ -1,0 +1,504 @@
+argo-cd:
+  global:
+    addPrometheusAnnotations: true
+
+  configs:
+    # General Argo CD configuration
+    ## Ref: https://github.com/argoproj/argo-cd/blob/master/docs/operator-manual/argocd-cm.yaml
+    cm:
+      # -- Enable exec feature in Argo UI
+      ## Ref: https://argo-cd.readthedocs.io/en/latest/operator-manual/rbac/#exec-resource
+      exec.enabled: true
+
+      # -- Enable local admin user
+      ## Ref: https://argo-cd.readthedocs.io/en/latest/faq/#how-to-disable-admin-user
+      admin.enabled: true
+
+      extension.config: |-
+        extensions:
+          - name: metrics
+            backend:
+              services:
+                - url: http://argocd-metrics-server:9003
+    
+    params:
+      server.insecure: true
+      server.enable.proxy.extension: "true"
+
+  dex:
+    enabled: false
+    livenessProbe:
+      enabled: true
+    readinessProbe:
+      enabled: true
+    resources:
+      limits:
+        memory: 128Mi
+      requests:
+        cpu: 10m
+        memory: 64Mi
+
+    metrics:
+      enabled: true
+      service:
+        annotations:
+          meta.helm.sh/release-name: argo-cd
+          meta.helm.sh/release-namespace: argocd
+      applicationLabels:
+        enabled: true
+      serviceMonitor:
+        enabled: true
+        annotations:
+          meta.helm.sh/release-name: argo-cd
+          meta.helm.sh/release-namespace: argocd
+
+  controller:
+    args:
+      # -- define the application controller `--status-processors`
+      statusProcessors: "20"
+      # -- define the application controller `--operation-processors`
+      operationProcessors: "10"
+      # -- define the application controller `--app-resync`
+      appResyncPeriod: "180"
+      # -- define the application controller `--self-heal-timeout-seconds`
+      selfHealTimeout: "5"
+      # -- define the application controller `--repo-server-timeout-seconds`
+      repoServerTimeoutSeconds: "180"
+
+    metrics:
+      enabled: true
+      service:
+        annotations:
+          meta.helm.sh/release-name: argo-cd
+          meta.helm.sh/release-namespace: argocd
+      applicationLabels:
+        enabled: true
+      serviceMonitor:
+        enabled: true
+        annotations:
+          meta.helm.sh/release-name: argo-cd
+          meta.helm.sh/release-namespace: argocd
+
+  repoServer:
+    autoscaling:
+      enabled: true
+      maxReplicas: 1
+    resources:
+      limits:
+        memory: 1024Mi
+      requests:
+        cpu: 200m
+        memory: 256Mi
+    pdb:
+      maxUnavailable: 25%
+      enabled: true
+    env:
+      - name: HELM_PLUGINS
+        value: /custom-tools/helm-plugins/
+      - name: HELM_SECRETS_SOPS_PATH
+        value: /custom-tools/sops
+      - name: HELM_SECRETS_VALS_PATH
+        value: /custom-tools/vals
+      - name: HELM_SECRETS_KUBECTL_PATH
+        value: /custom-tools/kubectl
+      - name: HELM_SECRETS_CURL_PATH
+        value: /custom-tools/curl
+      - name: HELM_SECRETS_VALUES_ALLOW_SYMLINKS
+        value: "false"
+      - name: HELM_SECRETS_VALUES_ALLOW_ABSOLUTE_PATH
+        value: "false"
+      - name: HELM_SECRETS_VALUES_ALLOW_PATH_TRAVERSAL
+        value: "false"
+    volumes:
+      - name: custom-tools
+        emptyDir: { }
+    volumeMounts:
+      - mountPath: /custom-tools
+        name: custom-tools
+    initContainers:
+      - name: download-tools
+        image: alpine:latest
+        command: [sh, -ec]
+        env:
+          - name: HELM_SECRETS_VERSION
+            value: "3.15.0"
+          - name: KUBECTL_VERSION
+            value: "1.22.13"
+          - name: VALS_VERSION
+            value: "0.18.0"
+          - name: SOPS_VERSION
+            value: "3.7.3"
+        args:
+          - |
+            mkdir -p /custom-tools/helm-plugins
+            wget -qO- https://github.com/jkroepke/helm-secrets/releases/download/v${HELM_SECRETS_VERSION}/helm-secrets.tar.gz | tar -C /custom-tools/helm-plugins -xzf-;
+            wget -qO /custom-tools/sops https://github.com/mozilla/sops/releases/download/v${SOPS_VERSION}/sops-v${SOPS_VERSION}.linux
+            wget -qO /custom-tools/kubectl https://dl.k8s.io/release/v${KUBECTL_VERSION}/bin/linux/amd64/kubectl
+            chmod +x /custom-tools/*
+        volumeMounts:
+          - mountPath: /custom-tools
+            name: custom-tools
+    metrics:
+      enabled: true
+      service:
+        annotations:
+          meta.helm.sh/release-name: argo-cd
+          meta.helm.sh/release-namespace: argocd
+      applicationLabels:
+        enabled: true
+      serviceMonitor:
+        enabled: true
+        annotations:
+          meta.helm.sh/release-name: argo-cd
+          meta.helm.sh/release-namespace: argocd
+
+  server:
+    extraArgs:
+      - --insecure
+    autoscaling:
+      enabled: true
+      maxReplicas: 1
+    config:
+      helm.valuesFileSchemes: >-
+        secrets
+    pdb:
+      enabled: true
+      maxUnavailable: 1
+    resources:
+      limits:
+        memory: 256Mi
+      requests:
+        cpu: 50m
+        memory: 128Mi
+    service:
+      type: NodePort
+    
+    metrics:
+      enabled: true
+      service:
+        annotations:
+          meta.helm.sh/release-name: argo-cd
+          meta.helm.sh/release-namespace: argocd
+      applicationLabels:
+        enabled: true
+      serviceMonitor:
+        enabled: true
+        annotations:
+          meta.helm.sh/release-name: argo-cd
+          meta.helm.sh/release-namespace: argocd
+
+    extensions:
+      enabled: true
+      extensionList:
+      - name: extension-installer
+        env:
+        - name: EXTENSION_URL
+          value: https://github.com/argoproj-labs/rollout-extension/releases/download/v0.3.4/extension.tar
+      - name: extension-metrics
+        env:
+        - name: EXTENSION_URL
+          value: https://github.com/argoproj-labs/argocd-extension-metrics/releases/download/v1.0.1/extension.tar.gz
+
+    ingress:
+      annotations:
+        kubernetes.io/ingress.class: nginx
+      enabled: true
+      labels: {}
+      ingressClassName: nginx
+      # -- Enable TLS configuration for the hostname defined at `server.ingress.hostname`
+      ## TLS certificate will be retrieved from a TLS secret `argocd-server-tls`
+      ## You can create this secret via `certificate` or `certificateSecret` option
+      tls: false
+
+      # -- The list of additional hostnames to be covered by ingress record
+      # @default -- `[]` (See [values.yaml])
+      extraHosts: []
+        # - name: argocd.example.com
+        #   path: /
+
+      # -- Additional ingress paths
+      # @default -- `[]` (See [values.yaml])
+      ## Note: Supports use of custom Helm templates
+      extraPaths: []
+        # - path: /*
+        #   pathType: Prefix
+        #   backend:
+        #     service:
+        #       name: ssl-redirect
+        #       port:
+        #         name: use-annotation
+      paths:
+        - /
+      pathType: Prefix
+      https: false
+
+  notifications:
+    enabled: true
+    name: notifications-controller
+    metrics:
+      enabled: true
+      service:
+        annotations:
+          meta.helm.sh/release-name: argo-cd
+          meta.helm.sh/release-namespace: argocd
+      applicationLabels:
+        enabled: true
+      serviceMonitor:
+        enabled: true
+        annotations:
+          meta.helm.sh/release-name: argo-cd
+          meta.helm.sh/release-namespace: argocd
+    secret:
+      create: true
+      items:
+        slack-token: xoxb-SETME
+    notifiers:
+      service.slack: |
+        token: $slack-token
+    templates:
+     template.app-deployed: |
+       email:
+         subject: New version of an application {{.app.metadata.name}} is up and running.
+       message: |
+         {{if eq .serviceType "slack"}}:white_check_mark:{{end}} Application {{.app.metadata.name}} is now running new version of deployments manifests.
+       slack:
+         attachments: |
+           [{
+             "title": "{{ .app.metadata.name}}",
+             "title_link":"{{.context.argocdUrl}}/applications/{{.app.metadata.name}}",
+             "color": "#18be52",
+             "fields": [
+             {
+               "title": "Sync Status",
+               "value": "{{.app.status.sync.status}}",
+               "short": true
+             },
+             {
+               "title": "Repository",
+               "value": "{{.app.spec.source.repoURL}}",
+               "short": true
+             },
+             {
+               "title": "Revision",
+               "value": "{{.app.status.sync.revision}}",
+               "short": true
+             }
+             {{range $index, $c := .app.status.conditions}}
+             {{if not $index}},{{end}}
+             {{if $index}},{{end}}
+             {
+               "title": "{{$c.type}}",
+               "value": "{{$c.message}}",
+               "short": true
+             }
+             {{end}}
+             ]
+           }]
+     template.app-health-degraded: |
+       email:
+         subject: Application {{.app.metadata.name}} has degraded.
+       message: |
+         {{if eq .serviceType "slack"}}:exclamation:{{end}} Application {{.app.metadata.name}} has degraded.
+         Application details: {{.context.argocdUrl}}/applications/{{.app.metadata.name}}.
+       slack:
+         attachments: |-
+           [{
+             "title": "{{ .app.metadata.name}}",
+             "title_link": "{{.context.argocdUrl}}/applications/{{.app.metadata.name}}",
+             "color": "#f4c030",
+             "fields": [
+             {
+               "title": "Sync Status",
+               "value": "{{.app.status.sync.status}}",
+               "short": true
+             },
+             {
+               "title": "Repository",
+               "value": "{{.app.spec.source.repoURL}}",
+               "short": true
+             }
+             {{range $index, $c := .app.status.conditions}}
+             {{if not $index}},{{end}}
+             {{if $index}},{{end}}
+             {
+               "title": "{{$c.type}}",
+               "value": "{{$c.message}}",
+               "short": true
+             }
+             {{end}}
+             ]
+           }]
+     template.app-sync-failed: |
+       email:
+         subject: Failed to sync application {{.app.metadata.name}}.
+       message: |
+         {{if eq .serviceType "slack"}}:exclamation:{{end}}  The sync operation of application {{.app.metadata.name}} has failed at {{.app.status.operationState.finishedAt}} with the following error: {{.app.status.operationState.message}}
+         Sync operation details are available at: {{.context.argocdUrl}}/applications/{{.app.metadata.name}}?operation=true .
+       slack:
+         attachments: |-
+           [{
+             "title": "{{ .app.metadata.name}}",
+             "title_link":"{{.context.argocdUrl}}/applications/{{.app.metadata.name}}",
+             "color": "#E96D76",
+             "fields": [
+             {
+               "title": "Sync Status",
+               "value": "{{.app.status.sync.status}}",
+               "short": true
+             },
+             {
+               "title": "Repository",
+               "value": "{{.app.spec.source.repoURL}}",
+               "short": true
+             }
+             {{range $index, $c := .app.status.conditions}}
+             {{if not $index}},{{end}}
+             {{if $index}},{{end}}
+             {
+               "title": "{{$c.type}}",
+               "value": "{{$c.message}}",
+               "short": true
+             }
+             {{end}}
+             ]
+           }]
+     template.app-sync-running: |
+       email:
+         subject: Start syncing application {{.app.metadata.name}}.
+       message: |
+         The sync operation of application {{.app.metadata.name}} has started at {{.app.status.operationState.startedAt}}.
+         Sync operation details are available at: {{.context.argocdUrl}}/applications/{{.app.metadata.name}}?operation=true .
+       slack:
+         attachments: |-
+           [{
+             "title": "{{ .app.metadata.name}}",
+             "title_link":"{{.context.argocdUrl}}/applications/{{.app.metadata.name}}",
+             "color": "#0DADEA",
+             "fields": [
+             {
+               "title": "Sync Status",
+               "value": "{{.app.status.sync.status}}",
+               "short": true
+             },
+             {
+               "title": "Repository",
+               "value": "{{.app.spec.source.repoURL}}",
+               "short": true
+             }
+             {{range $index, $c := .app.status.conditions}}
+             {{if not $index}},{{end}}
+             {{if $index}},{{end}}
+             {
+               "title": "{{$c.type}}",
+               "value": "{{$c.message}}",
+               "short": true
+             }
+             {{end}}
+             ]
+           }]
+     template.app-sync-status-unknown: |
+       email:
+         subject: Application {{.app.metadata.name}} sync status is 'Unknown'
+       message: |
+         {{if eq .serviceType "slack"}}:exclamation:{{end}} Application {{.app.metadata.name}} sync is 'Unknown'.
+         Application details: {{.context.argocdUrl}}/applications/{{.app.metadata.name}}.
+         {{if ne .serviceType "slack"}}
+         {{range $c := .app.status.conditions}}
+             * {{$c.message}}
+         {{end}}
+         {{end}}
+       slack:
+         attachments: |-
+           [{
+             "title": "{{ .app.metadata.name}}",
+             "title_link":"{{.context.argocdUrl}}/applications/{{.app.metadata.name}}",
+             "color": "#E96D76",
+             "fields": [
+             {
+               "title": "Sync Status",
+               "value": "{{.app.status.sync.status}}",
+               "short": true
+             },
+             {
+               "title": "Repository",
+               "value": "{{.app.spec.source.repoURL}}",
+               "short": true
+             }
+             {{range $index, $c := .app.status.conditions}}
+             {{if not $index}},{{end}}
+             {{if $index}},{{end}}
+             {
+               "title": "{{$c.type}}",
+               "value": "{{$c.message}}",
+               "short": true
+             }
+             {{end}}
+             ]
+           }]
+     template.app-sync-succeeded: |
+       email:
+         subject: Application {{.app.metadata.name}} has been successfully synced.
+       message: |
+         {{if eq .serviceType "slack"}}:white_check_mark:{{end}} Application {{.app.metadata.name}} has been successfully synced at {{.app.status.operationState.finishedAt}}.
+         Sync operation details are available at: {{.context.argocdUrl}}/applications/{{.app.metadata.name}}?operation=true .
+       slack:
+         attachments: |-
+           [{
+             "title": "{{ .app.metadata.name}}",
+             "title_link":"{{.context.argocdUrl}}/applications/{{.app.metadata.name}}",
+             "color": "#18be52",
+             "fields": [
+             {
+               "title": "Sync Status",
+               "value": "{{.app.status.sync.status}}",
+               "short": true
+             },
+             {
+               "title": "Repository",
+               "value": "{{.app.spec.source.repoURL}}",
+               "short": true
+             }
+             {{range $index, $c := .app.status.conditions}}
+             {{if not $index}},{{end}}
+             {{if $index}},{{end}}
+             {
+               "title": "{{$c.type}}",
+               "value": "{{$c.message}}",
+               "short": true
+             }
+             {{end}}
+             ]
+           }]
+
+    triggers:
+      trigger.on-deployed: |
+        - description: Application is synced and healthy. Triggered once per commit.
+          oncePer: app.status.sync.revision
+          send:
+          - app-deployed
+          when: app.status.operationState.phase in ['Succeeded'] and app.status.health.status == 'Healthy'
+      trigger.on-health-degraded: |
+        - description: Application has degraded
+          send:
+          - app-health-degraded
+          when: app.status.health.status == 'Degraded'
+      trigger.on-sync-failed: |
+        - description: Application syncing has failed
+          send:
+          - app-sync-failed
+          when: app.status.operationState.phase in ['Error', 'Failed']
+      trigger.on-sync-running: |
+        - description: Application is being synced
+          send:
+          - app-sync-running
+          when: app.status.operationState.phase in ['Running']
+      trigger.on-sync-status-unknown: |
+        - description: Application status is 'Unknown'
+          send:
+          - app-sync-status-unknown
+          when: app.status.sync.status == 'Unknown'
+      trigger.on-sync-succeeded: |
+        - description: Application syncing has succeeded
+          send:
+          - app-sync-succeeded
+          when: app.status.operationState.phase in ['Succeeded']

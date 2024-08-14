@@ -1,0 +1,27 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: bootstrap-addons
+  namespace: 'argocd'
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/antodoms/homelab.git
+    targetRevision: main
+    path: argocd-apps/chart
+    helm:
+      values: |
+        metallb:
+          addressPool: ${metallb_address_pool}
+        mayastor:
+          workers:
+            ${indent(12,yamlencode(worker_nodes))}
+      parameters:
+      - name: ingressDomain
+        value: ${ingress_domain}
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argocd
+  syncPolicy:
+    automated:
+      prune: true

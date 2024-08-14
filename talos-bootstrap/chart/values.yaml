@@ -1,0 +1,38 @@
+# Global Values
+repoUrl: 'https://github.com/antodoms/homelab.git'
+targetRevision: main
+destinationServer: ''
+argoNamespace: argocd
+argoProject: ''
+
+# ArgoCD Values
+argoCd:
+  enable: false
+  createNamespace: true
+
+# MetalLB
+metallb:
+  enable: false
+  addressPool: ""
+
+# Kube Prometheus Stack
+kubePrometheusStack:
+  enable: true
+  createNamespace: true
+
+# VPA Values
+vpa:
+  enable: true
+  createNamespace: true
+
+localPathStorage:
+  enable: false
+  createNamespace: true
+
+mayastor:
+  enable: true
+  createNamespace: true
+
+# uses kube-system namespace
+talosCcm:
+  enable: false

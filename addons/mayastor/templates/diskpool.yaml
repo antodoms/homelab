@@ -1,0 +1,10 @@
+{{- range .Values.mayastor.workers }}
+apiVersion: "openebs.io/v1beta1"
+kind: DiskPool
+metadata:
+  name: pool-on-{{ .hostname }}
+spec:
+  node: {{ .hostname }}
+  disks: ["/dev/sdb"]
+---
+{{- end }}

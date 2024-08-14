@@ -1,0 +1,47 @@
+{{- if and (.Values.argoCd) (.Values.argoCd.enable) -}}
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: argo-cd
+  namespace: {{ .Values.argoNamespace | default "argocd" }}
+  finalizers:
+  - resources-finalizer.argocd.argoproj.io
+spec:
+  project: {{ .Values.argoProject | default "default" }}
+  source:
+    repoURL: {{ .Values.repoUrl }}
+    path: add-ons/argocd
+    targetRevision: {{ .Values.targetRevision }}
+    helm:
+      values: |
+        argo-cd:
+        {{- toYaml .Values.argoCd | nindent 10 }}
+      parameters:
+      - name: argo-cd.global.domain
+        value: argocd.{{ .Values.ingressDomain }}
+      - name: argo-cd.server.certificate.domain
+        value: argocd.{{ .Values.ingressDomain }}
+      - name: argo-cd.server.ingress.hostname
+        value: argocd.{{ .Values.ingressDomain }}
+      - name: argo-cd.server.config.url
+        value: "https://argocd.{{ .Values.ingressDomain }}"
+      - name: argo-cd.server.certificate.domain
+        value: "argocd.{{ .Values.ingressDomain }}"
+      - name: argo-cd.configs.cm.url
+        value: "https://argocd.{{ .Values.ingressDomain }}"
+  destination:
+    server: {{ .Values.destinationServer | default "https://kubernetes.default.svc" }}
+    namespace: argocd
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace={{ .Values.argoCd.createNamespace }}
+    automated:
+      selfHeal: true
+      prune: true
+    retry:
+      limit: 1
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 1m
+{{- end -}}

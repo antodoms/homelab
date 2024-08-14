@@ -1,0 +1,48 @@
+{{- if and (.Values.kubePrometheusStack) (.Values.kubePrometheusStack.enable) -}}
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: kube-prometheus-stack
+  namespace: {{ .Values.argoNamespace | default "argocd" }}
+  finalizers:
+  - resources-finalizer.argocd.argoproj.io
+spec:
+  project: {{ .Values.argoProject | default "default" }}
+  source:
+    repoURL: {{ .Values.repoUrl }}
+    path: add-ons/kube-prometheus-stack
+    targetRevision: {{ .Values.targetRevision }}
+    helm:
+      values: |
+        kube-prometheus-stack:
+          prometheus:
+            prometheusSpec:
+              podMonitorSelectorNilUsesHelmValues: false
+              serviceMonitorSelectorNilUsesHelmValues: false
+        {{- toYaml .Values.kubePrometheusStack | nindent 10 }}
+      parameters:
+        - name: kube-prometheus-stack.grafana.ingress.hosts[0]
+          value: grafana.{{ .Values.baseDomain }}
+        - name: kube-prometheus-stack.grafana.grafana\.ini.server.root_url
+          value: https://grafana.{{ .Values.baseDomain }}
+  destination:
+    server: {{ .Values.destinationServer | default "https://kubernetes.default.svc" }}
+    namespace: kube-prometheus-stack
+  syncPolicy:
+    managedNamespaceMetadata:
+      labels:
+        pod-security.kubernetes.io/enforce: privileged
+        pod-security.kubernetes.io/enforce-version: latest
+    syncOptions:
+    - CreateNamespace={{ .Values.kubePrometheusStack.createNamespace }}
+    - ServerSideApply=true
+    automated:
+      selfHeal: true
+      prune: true
+    retry:
+      limit: 1
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 1m
+{{- end -}}
