@@ -1,0 +1,47 @@
+{{- if and (.Values.mediaServerOperator) (.Values.mediaServerOperator.enable) -}}
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: media-server-operator
+  namespace: {{ .Values.argoNamespace | default "argocd" }}
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: {{ .Values.argoProject | default "default" }}
+  source:
+    repoURL: {{ .Values.repoUrl }}
+    path: addons/media-server-operator
+    targetRevision: {{ .Values.targetRevision }}
+    helm:
+      values: |
+        {{- toYaml .Values.mediaServerOperator | nindent 8 }}
+      parameters:
+      - name: general.ingress_host
+        value: mediaserver.{{ .Values.ingressDomain }}
+      - name: general.plex_ingress_host
+        value: plex.{{ .Values.ingressDomain }}
+      - name: general.jellyfin_ingress_host
+        value: jellyfin.{{ .Values.ingressDomain }}
+      - name: general.storage.volumes.nfs.server
+        value: "{{ .Values.NfsServerIp }}"
+      - name: general.storage.volumes.nfs.path
+        value: "{{ .Values.MediaServerNFSPath }}"
+    
+
+  destination:
+    server: {{ .Values.destinationServer | default "https://kubernetes.default.svc" }}
+    namespace: media-server-operator
+  syncPolicy:
+    syncOptions:
+      - RespectIgnoreDifferences=true
+      - CreateNamespace={{ .Values.mediaServerOperator.createNamespace }}
+    automated:
+      selfHeal: true
+      prune: true
+    retry:
+      limit: 1
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 1m
+{{- end -}}

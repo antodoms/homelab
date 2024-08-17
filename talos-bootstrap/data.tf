@@ -20,4 +20,7 @@ locals {
 
     master_nodes = try(local.config["master_nodes"], var.master_nodes)
     worker_nodes = try(local.config["worker_nodes"], var.worker_nodes)
+
+    nfs_server_ip = try(local.config["nfs_server"]["address"])
+    media_server_nfs_path = try(local.config["nfs_server"]["media_server_path"])
 }

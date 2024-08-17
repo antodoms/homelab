@@ -45,5 +45,9 @@
             "cpu": "4",
             "mem": 6144
         }
-    ]
+    ],
+    "nfs_server": {
+      "address": "10.27.27.3",
+      "media_server_path": "/volume1/Plex/Library/K8S"
+    }
 }

@@ -36,3 +36,10 @@ mayastor:
 # uses kube-system namespace
 talosCcm:
   enable: false
+
+mediaServerOperator:
+  enable: true
+  createNamespace: true
+  general:
+    storage:
+      customVolume: true
