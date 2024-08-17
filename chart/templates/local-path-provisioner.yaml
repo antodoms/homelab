@@ -10,7 +10,7 @@ spec:
   project: {{ .Values.argoProject | default "default" }}
   source:
     repoURL: {{ .Values.repoUrl }}
-    path: add-ons/local-path-storage
+    path: addons/local-path-storage
     targetRevision: {{ .Values.targetRevision }}
   destination:
     server: {{ .Values.destinationServer | default "https://kubernetes.default.svc" }}

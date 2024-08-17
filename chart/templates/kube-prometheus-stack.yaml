@@ -10,7 +10,7 @@ spec:
   project: {{ .Values.argoProject | default "default" }}
   source:
     repoURL: {{ .Values.repoUrl }}
-    path: add-ons/kube-prometheus-stack
+    path: addons/kube-prometheus-stack
     targetRevision: {{ .Values.targetRevision }}
     helm:
       values: |
@@ -22,9 +22,9 @@ spec:
         {{- toYaml .Values.kubePrometheusStack | nindent 10 }}
       parameters:
         - name: kube-prometheus-stack.grafana.ingress.hosts[0]
-          value: grafana.{{ .Values.baseDomain }}
+          value: grafana.{{ .Values.ingressDomain }}
         - name: kube-prometheus-stack.grafana.grafana\.ini.server.root_url
-          value: https://grafana.{{ .Values.baseDomain }}
+          value: https://grafana.{{ .Values.ingressDomain }}
   destination:
     server: {{ .Values.destinationServer | default "https://kubernetes.default.svc" }}
     namespace: kube-prometheus-stack

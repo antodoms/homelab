@@ -10,7 +10,7 @@ spec:
   project: {{ .Values.argoProject | default "default" }}
   source:
     repoURL: {{ .Values.repoUrl }}
-    path: add-ons/metallb
+    path: addons/metallb
     targetRevision: {{ .Values.targetRevision }}
     kustomize:
       patches:

@@ -8,7 +8,7 @@ spec:
   source:
     repoURL: https://github.com/antodoms/homelab.git
     targetRevision: main
-    path: argocd-apps/chart
+    path: chart
     helm:
       values: |
         metallb:

@@ -1,9 +1,13 @@
 locals {
+    workers_with_address_and_hostname = [for nodes in local.worker_nodes: {
+        address = nodes["address"],
+        hostname = nodes["hostname"]
+      }]
     argocd_bootstrap_app = {
     addons = templatefile("${path.module}/bootstrap/addons.yaml", {
       ingress_domain    = local.ingress_domain
       metallb_address_pool = local.cluster_lb_ip_range
-      worker_nodes = local.worker_nodes
+      worker_nodes = local.workers_with_address_and_hostname
     })
 
     project = templatefile("${path.module}/bootstrap/argo-project.yaml", {
