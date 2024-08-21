@@ -54,7 +54,13 @@ sonarr:
     tls:
       enabled: false
       secretName: ""
-  resources: {}
+  resources:
+    limits:
+      cpu: "200m"
+      memory: "4Gi"
+    requests:
+      cpu: "100m"
+      memory: "2Gi"
   volume: {}
   # name: pvc-sonarr-config
   # storageClassName: longhorn
@@ -86,7 +92,13 @@ radarr:
     tls:
       enabled: false
       secretName: ""
-  resources: {}
+  resources:
+    limits:
+      cpu: "200m"
+      memory: "4Gi"
+    requests:
+      cpu: "100m"
+      memory: "2Gi"
   volume: {}
   # name: pvc-radarr-config
   # storageClassName: longhorn
@@ -97,7 +109,7 @@ radarr:
   # selector: {}
 
 jackett:
-  enabled: true
+  enabled: false
   container:
     image: docker.io/linuxserver/jackett
     nodeSelector: {}
@@ -116,7 +128,13 @@ jackett:
     tls:
       enabled: false
       secretName: ""
-  resources: {}
+  resources:
+    limits:
+      cpu: "200m"
+      memory: "4Gi"
+    requests:
+      cpu: "100m"
+      memory: "2Gi"
   volume: {}
   #  name: pvc-jackett-config
   #  storageClassName: longhorn
@@ -164,7 +182,13 @@ transmission:
       enabled: false
       username: ""
       password: ""
-  resources: {}
+  resources:
+    limits:
+      cpu: "200m"
+      memory: "4Gi"
+    requests:
+      cpu: "100m"
+      memory: "2Gi"
   volume: {}
   #  name: pvc-transmission-config
   #  storageClassName: longhorn
@@ -204,7 +228,13 @@ sabnzbd:
     tls:
       enabled: false
       secretName: ""
-  resources: {}
+  resources:
+    limits:
+      cpu: "200m"
+      memory: "4Gi"
+    requests:
+      cpu: "100m"
+      memory: "2Gi"
   volume: {}
   #  name: pvc-plex-config
   #  storageClassName: longhorn
@@ -234,7 +264,13 @@ prowlarr:
     tls:
       enabled: false
       secretName: ""
-  resources: {}
+  resources:
+    limits:
+      cpu: "200m"
+      memory: "4Gi"
+    requests:
+      cpu: "100m"
+      memory: "2Gi"
   volume: {}
   #  name: pvc-prowlarr-config
   #  storageClassName: longhorn
@@ -265,13 +301,13 @@ plex:
     tls:
       enabled: false
       secretName: ""
-  resources: {}
-  #  limits:
-  #    cpu: 100m
-  #    memory: 100Mi
-  #  requests:
-  #    cpu: 100m
-  #    memory: 100Mi
+  resources:
+    limits:
+      cpu: "200m"
+      memory: "4Gi"
+    requests:
+      cpu: "100m"
+      memory: "2Gi"
   volume: {}
   #  name: pvc-plex-config
   #  storageClassName: longhorn
@@ -300,7 +336,13 @@ jellyfin:
     tls:
       enabled: false
       secretName: ""
-  resources: {}
+  resources:
+    limits:
+      cpu: "200m"
+      memory: "4Gi"
+    requests:
+      cpu: "100m"
+      memory: "2Gi"
   #  limits:
   #    cpu: 100m
   #    memory: 100Mi
