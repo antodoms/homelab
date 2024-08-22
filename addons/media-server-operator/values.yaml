@@ -61,16 +61,14 @@ sonarr:
     requests:
       cpu: "100m"
       memory: "2Gi"
-  volume: {}
-  # name: pvc-sonarr-config
-  # storageClassName: longhorn
-  # annotations:
-  #   my-annotation/test: my-value
-  # labels:
-  #   my-label/test: my-other-value
-  # accessModes: ReadWriteOnce
-  # storage: 5Gi
-  # selector: {}
+  volume:
+    name: pvc-sonarr-config
+    storageClassName: mayastor-sc
+    annotations: {}
+    labels: {}
+    accessModes: ReadWriteOnce
+    storage: 5Gi
+    selector: {}
 
 radarr:
   enabled: true
@@ -99,14 +97,14 @@ radarr:
     requests:
       cpu: "100m"
       memory: "2Gi"
-  volume: {}
-  # name: pvc-radarr-config
-  # storageClassName: longhorn
-  # annotations: {}
-  # labels: {}
-  # accessModes: ReadWriteOnce
-  # storage: 5Gi
-  # selector: {}
+  volume:
+    name: pvc-radarr-config
+    storageClassName: mayastor-sc
+    annotations: {}
+    labels: {}
+    accessModes: ReadWriteOnce
+    storage: 5Gi
+    selector: {}
 
 jackett:
   enabled: false
@@ -135,14 +133,14 @@ jackett:
     requests:
       cpu: "100m"
       memory: "2Gi"
-  volume: {}
-  #  name: pvc-jackett-config
-  #  storageClassName: longhorn
-  #  annotations: {}
-  #  labels: {}
-  #  accessModes: ReadWriteOnce
-  #  storage: 5Gi
-  #  selector: {}
+  volume:
+    name: pvc-jackett-config
+    storageClassName: mayastor-sc
+    annotations: {}
+    labels: {}
+    accessModes: ReadWriteOnce
+    storage: 5Gi
+    selector: {}
 
 transmission:
   enabled: true
@@ -189,14 +187,14 @@ transmission:
     requests:
       cpu: "100m"
       memory: "2Gi"
-  volume: {}
-  #  name: pvc-transmission-config
-  #  storageClassName: longhorn
-  #  annotations: {}
-  #  labels: {}
-  #  accessModes: ReadWriteOnce
-  #  storage: 5Gi
-  #  selector: {}
+  volume:
+    name: pvc-transmission-config
+    storageClassName: mayastor-sc
+    annotations: {}
+    labels: {}
+    accessModes: ReadWriteOnce
+    storage: 5Gi
+    selector: {}
 
 sabnzbd:
   enabled: true
@@ -235,14 +233,14 @@ sabnzbd:
     requests:
       cpu: "100m"
       memory: "2Gi"
-  volume: {}
-  #  name: pvc-plex-config
-  #  storageClassName: longhorn
-  #  annotations: {}
-  #  labels: {}
-  #  accessModes: ReadWriteOnce
-  #  storage: 5Gi
-  #  selector: {}
+  volume:
+    name: pvc-sabnzbd-config
+    storageClassName: mayastor-sc
+    annotations: {}
+    labels: {}
+    accessModes: ReadWriteOnce
+    storage: 5Gi
+    selector: {}
 
 prowlarr:
   enabled: true
@@ -271,14 +269,14 @@ prowlarr:
     requests:
       cpu: "100m"
       memory: "2Gi"
-  volume: {}
-  #  name: pvc-prowlarr-config
-  #  storageClassName: longhorn
-  #  annotations: {}
-  #  labels: {}
-  #  accessModes: ReadWriteOnce
-  #  storage: 5Gi
-  #  selector: {}
+  volume:
+    name: pvc-prowlarr-config
+    storageClassName: mayastor-sc
+    annotations: {}
+    labels: {}
+    accessModes: ReadWriteOnce
+    storage: 5Gi
+    selector: {}
 
 plex:
   enabled: true
@@ -308,14 +306,14 @@ plex:
     requests:
       cpu: "100m"
       memory: "2Gi"
-  volume: {}
-  #  name: pvc-plex-config
-  #  storageClassName: longhorn
-  #  annotations: {}
-  #  labels: {}
-  #  accessModes: ReadWriteOnce
-  #  storage: 5Gi
-  #  selector: {}
+  volume:
+    name: pvc-plex-config
+    storageClassName: mayastor-sc
+    annotations: {}
+    labels: {}
+    accessModes: ReadWriteOnce
+    storage: 5Gi
+    selector: {}
 
 jellyfin:
   enabled: false
@@ -343,17 +341,11 @@ jellyfin:
     requests:
       cpu: "100m"
       memory: "2Gi"
-  #  limits:
-  #    cpu: 100m
-  #    memory: 100Mi
-  #  requests:
-  #    cpu: 100m
-  #    memory: 100Mi
-  volume: {}
-  #  name: pvc-jellyfin-config
-  #  storageClassName: longhorn
-  #  annotations: {}
-  #  labels: {}
-  #  accessModes: ReadWriteOnce
-  #  storage: 5Gi
-  #  selector: {}
+  volume:
+    name: pvc-jellyfin-config
+    storageClassName: mayastor-sc
+    annotations: {}
+    labels: {}
+    accessModes: ReadWriteOnce
+    storage: 5Gi
+    selector: {}
