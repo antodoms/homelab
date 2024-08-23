@@ -10,6 +10,10 @@ argoCd:
   enable: false
   createNamespace: true
 
+adguard:
+  enable: true
+  createNamespace: true
+
 # MetalLB
 metallb:
   enable: false
