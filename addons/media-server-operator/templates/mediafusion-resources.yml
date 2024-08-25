@@ -144,7 +144,7 @@ spec:
     spec:
       containers:
       - name: mongodb
-        image: mongo
+        image: mongo:4.4.18
         ports:
         - containerPort: 27017
         volumeMounts:
@@ -220,7 +220,7 @@ metadata:
   name: mediafusion-mongodb-svc
 spec:
   selector:
-    app: mediafusion-mongodb
+    app: mongodb
   ports:
     - protocol: TCP
       port: 27017
@@ -234,7 +234,7 @@ metadata:
   name: mediafusion-redis-svc
 spec:
   selector:
-    app: mediafusion-redis
+    app: redis
   ports:
     - protocol: TCP
       port: 6379
