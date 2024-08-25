@@ -349,3 +349,39 @@ jellyfin:
     accessModes: ReadWriteOnce
     storage: 5Gi
     selector: {}
+
+mediafusion:
+  enabled: true
+  replicaCount: 1
+  container:
+    image: mhdzumair/mediafusion:v3.9.15
+    nodeSelector: {}
+    port: 8000
+  service:
+    type: ClusterIP
+    port: 8000
+    nodePort:
+    # Defines an additional LB service, requires cloud provider service or MetalLB
+    extraLBService: false
+  ingress:
+    enabled: true
+    annotations: {}
+    tls:
+      enabled: false
+      secretName: ""
+  resources:
+    requests:
+      memory: "500Mi"
+      cpu: "200m"
+    limits:
+      memory: "800Mi"
+      cpu: "200m"
+  volume:
+    name: pvc-mediafusion-config
+    storageClassName: mayastor-sc
+    annotations: {}
+    labels: {}
+    accessModes: ReadWriteOnce
+    storage: 5Gi
+    selector: {}
+  

@@ -26,7 +26,6 @@ spec:
         value: "{{ .Values.NfsServerIp }}"
       - name: general.storage.volumes.nfs.path
         value: "{{ .Values.MediaServerNFSPath }}"
-    
 
   destination:
     server: {{ .Values.destinationServer | default "https://kubernetes.default.svc" }}
