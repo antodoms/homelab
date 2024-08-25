@@ -199,7 +199,6 @@ spec:
   tls:
     - hosts:
         - {{ .Values.general.ingress_host | quote }}
-      secretName: {{ .Values.jackett.ingress.tls.secretName }}
 {{ end }}
   ingressClassName: {{ .Values.general.ingress.ingressClassName }}
   rules:

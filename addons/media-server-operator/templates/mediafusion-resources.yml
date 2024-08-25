@@ -258,7 +258,6 @@ spec:
   tls:
   - hosts:
     - {{ .Values.general.mediafusion_ingress_host | quote }}
-    secretName: {{ .Values.mediafusion.ingress.tls.secretName }}
 {{ end }}
   ingressClassName: {{ .Values.general.ingress.ingressClassName }}
   rules:

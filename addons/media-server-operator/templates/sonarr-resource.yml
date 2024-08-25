@@ -207,7 +207,6 @@ spec:
   tls:
     - hosts:
         - {{ .Values.general.ingress_host | quote }}
-      secretName: {{ .Values.sonarr.ingress.tls.secretName }}
 {{ end }}
   ingressClassName: {{ .Values.general.ingress.ingressClassName }}
   rules:

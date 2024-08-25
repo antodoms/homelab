@@ -44,6 +44,52 @@ locals {
   cilium_external_lb_manifest = join("---\n", [for d in local.cilium_external_lb_manifests : yamlencode(d)])
 }
 
+#  start of default TLS Cert
+resource "tls_private_key" "default" {
+  algorithm = "ECDSA"
+}
+
+resource "tls_self_signed_cert" "default" {
+  private_key_pem = tls_private_key.default.private_key_pem
+
+  # Certificate expires after 12 hours.
+  validity_period_hours = 12
+
+  # Generate a new certificate if Terraform is run within three
+  # hours of the certificate's expiration time.
+  early_renewal_hours = 3
+
+  # Reasonable set of uses for a server SSL certificate.
+  allowed_uses = [
+    "key_encipherment",
+    "digital_signature",
+    "server_auth",
+  ]
+
+  dns_names = ["*.${local.ingress_domain}"]
+
+  subject {
+    common_name  = local.ingress_domain
+    organization = "Zetech Homelab"
+  }
+}
+
+resource "kubernetes_secret" "mediaserver" {
+  metadata {
+    name = "default-tls-cert"
+    namespace = "kube-system"
+  }
+
+  data = {
+    "tls.crt" = tls_self_signed_cert.default.cert_pem
+    "tls.key" = tls_private_key.default.private_key_pem
+  }
+
+  type = "kubernetes.io/tls"
+}
+
+## END oF TLS Cert
+
 // see https://www.talos.dev/v1.7/kubernetes-guides/network/deploying-cilium/#method-4-helm-manifests-inline-install
 // see https://docs.cilium.io/en/stable/network/servicemesh/ingress/
 // see https://docs.cilium.io/en/stable/gettingstarted/hubble_setup/
@@ -116,6 +162,14 @@ data "helm_template" "cilium" {
   set {
     name  = "ingressController.enforceHttps"
     value = "false"
+  }
+  set {
+    name = "ingressController.defaultSecretNamespace"
+    value = "kube-system"
+  }
+  set {
+    name = "ingressController.defaultSecretName"
+    value = "default-tls-cert"
   }
   set {
     name  = "envoy.enabled"

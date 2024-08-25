@@ -139,7 +139,6 @@ spec:
   tls:
     - hosts:
         - {{ .Values.general.jellyfin_ingress_host | quote }}
-      secretName: {{ .Values.jellyfin.ingress.tls.secretName }}
 {{ end }}
   ingressClassName: {{ .Values.general.ingress.ingressClassName }}
   rules:

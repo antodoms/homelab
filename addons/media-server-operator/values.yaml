@@ -53,8 +53,7 @@ sonarr:
     annotations: {}
     path: /sonarr
     tls:
-      enabled: false
-      secretName: ""
+      enabled: true
   resources:
     limits:
       cpu: "200m"
@@ -89,8 +88,7 @@ radarr:
     annotations: {}
     path: /radarr
     tls:
-      enabled: false
-      secretName: ""
+      enabled: true
   resources:
     limits:
       cpu: "200m"
@@ -125,8 +123,7 @@ jackett:
     annotations: {}
     path: /jackett
     tls:
-      enabled: false
-      secretName: ""
+      enabled: true
   resources:
     limits:
       cpu: "200m"
@@ -174,8 +171,7 @@ transmission:
     annotations: {}
     path: /transmission
     tls:
-      enabled: false
-      secretName: ""
+      enabled: true
   config:
     auth:
       enabled: false
@@ -225,8 +221,7 @@ sabnzbd:
     annotations: {}
     path: /sabnzbd
     tls:
-      enabled: false
-      secretName: ""
+      enabled: true
   resources:
     limits:
       cpu: "200m"
@@ -245,7 +240,6 @@ sabnzbd:
 
 prowlarr:
   enabled: true
-  api_key: 747f2f9d0fde49e4be0c3ecd4dc4aeac
   container:
     image: docker.io/linuxserver/prowlarr
     tag: develop
@@ -262,8 +256,7 @@ prowlarr:
     annotations: {}
     path: /prowlarr
     tls:
-      enabled: false
-      secretName: ""
+      enabled: true
   resources:
     limits:
       cpu: "200m"
@@ -299,8 +292,7 @@ plex:
     enabled: true
     annotations: {}
     tls:
-      enabled: false
-      secretName: ""
+      enabled: true
   resources:
     limits:
       cpu: "200m"
@@ -334,8 +326,7 @@ jellyfin:
     enabled: true
     annotations: {}
     tls:
-      enabled: false
-      secretName: ""
+      enabled: true
   resources:
     limits:
       cpu: "200m"
@@ -370,7 +361,6 @@ mediafusion:
     annotations: {}
     tls:
       enabled: true
-      secretName: "default-tls-secret"
   resources:
     requests:
       memory: "500Mi"
