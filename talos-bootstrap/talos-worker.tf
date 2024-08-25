@@ -16,6 +16,7 @@ data "talos_machine_configuration" "worker" {
           disk = "/dev/sda"
           disk = "/dev/sdb"
         }
+        
         network = {
           hostname = local.worker_nodes[count.index].hostname
           nameservers = [

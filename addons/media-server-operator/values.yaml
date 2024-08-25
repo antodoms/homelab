@@ -369,8 +369,8 @@ mediafusion:
     enabled: true
     annotations: {}
     tls:
-      enabled: false
-      secretName: ""
+      enabled: true
+      secretName: "default-tls-secret"
   resources:
     requests:
       memory: "500Mi"

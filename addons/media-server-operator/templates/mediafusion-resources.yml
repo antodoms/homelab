@@ -57,9 +57,9 @@ spec:
                 name: prowlarr-secrets
                 key: PROWLARR_API_KEY
           - name: HOST_URL
-            value: "http://{{ .Values.general.mediafusion_ingress_host }}"
+            value: "https://{{ .Values.general.mediafusion_ingress_host }}"
           - name: POSTER_HOST_URL
-            value: "http://{{ .Values.general.mediafusion_ingress_host }}"
+            value: "https://{{ .Values.general.mediafusion_ingress_host }}"
           - name: ENABLE_TAMILMV_SEARCH_SCRAPER
             value: "true"
           - name: PROWLARR_IMMEDIATE_MAX_PROCESS
@@ -104,7 +104,7 @@ spec:
         command: ["pipenv", "run", "dramatiq", "api.task", "-p", "1", "-t", "1"]
         env:
           - name: HOST_URL
-            value: "http://{{ .Values.general.mediafusion_ingress_host }}"
+            value: "https://{{ .Values.general.mediafusion_ingress_host }}"
           - name: MONGO_URI
             value: "mongodb://mediafusion-mongodb-svc:27017/mediafusion"
           - name: REDIS_URL
