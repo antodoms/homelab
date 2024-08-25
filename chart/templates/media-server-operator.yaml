@@ -22,6 +22,8 @@ spec:
         value: plex.{{ .Values.ingressDomain }}
       - name: general.jellyfin_ingress_host
         value: jellyfin.{{ .Values.ingressDomain }}
+      - name: general.mediafusion_ingress_host
+        value: mediafusion.{{ .Values.ingressDomain }}
       - name: general.storage.volumes.nfs.server
         value: "{{ .Values.NfsServerIp }}"
       - name: general.storage.volumes.nfs.path

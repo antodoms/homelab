@@ -1,0 +1,276 @@
+{{ if .Values.mediafusion.enabled }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mediafusion
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mediafusion
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+  template:
+    metadata:
+      labels:
+        app: mediafusion
+    spec:
+      containers:
+      - name: mediafusion
+        image: mhdzumair/mediafusion:v3.9.15
+        ports:
+        - containerPort: {{ .Values.mediafusion.container.port }}
+        resources:
+          requests:
+            memory: "500Mi"
+            cpu: "200m"
+          limits:
+            memory: "800Mi"
+            cpu: "200m"
+        env:
+          - name: MONGO_URI
+            value: "mongodb://mediafusion-mongodb-svc:27017/mediafusion"
+          - name: REDIS_URL
+            value: "redis://mediafusion-redis-svc:6379"
+          - name: SECRET_KEY
+            valueFrom:
+              secretKeyRef:
+                name: mediafusion-secrets
+                key: SECRET_KEY
+          - name: PREMIUMIZE_OAUTH_CLIENT_ID
+            valueFrom:
+              secretKeyRef:
+                name: mediafusion-secrets
+                key: PREMIUMIZE_OAUTH_CLIENT_ID
+          - name: PREMIUMIZE_OAUTH_CLIENT_SECRET
+            valueFrom:
+              secretKeyRef:
+                name: mediafusion-secrets
+                key: PREMIUMIZE_OAUTH_CLIENT_SECRET
+          - name: PROWLARR_API_KEY
+            valueFrom:
+              secretKeyRef:
+                name: prowlarr-secrets
+                key: PROWLARR_API_KEY
+          - name: HOST_URL
+            value: "http://{{ .Values.general.mediafusion_ingress_host }}"
+          - name: POSTER_HOST_URL
+            value: "http://{{ .Values.general.mediafusion_ingress_host }}"
+          - name: ENABLE_TAMILMV_SEARCH_SCRAPER
+            value: "true"
+          - name: PROWLARR_IMMEDIATE_MAX_PROCESS
+            value: "3"
+          - name: PROWLARR_SEARCH_INTERVAL_HOUR
+            value: "24"
+          - name: IS_SCRAP_FROM_TORRENTIO
+            value: "true"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: {{ .Values.mediafusion.container.port }}
+          initialDelaySeconds: 10
+          periodSeconds: 60
+          failureThreshold: 5
+          timeoutSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: {{ .Values.mediafusion.container.port }}
+          initialDelaySeconds: 30
+          periodSeconds: 5
+          timeoutSeconds: 10
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dramatiq-worker
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dramatiq-worker
+  template:
+    metadata:
+      labels:
+        app: dramatiq-worker
+    spec:
+      containers:
+      - name: dramatiq-worker
+        image: mhdzumair/mediafusion:v3.9.15
+        command: ["pipenv", "run", "dramatiq", "api.task", "-p", "1", "-t", "1"]
+        env:
+          - name: HOST_URL
+            value: "http://{{ .Values.general.mediafusion_ingress_host }}"
+          - name: MONGO_URI
+            value: "mongodb://mediafusion-mongodb-svc:27017/mediafusion"
+          - name: REDIS_URL
+            value: "redis://mediafusion-redis-svc:6379"
+          - name: SECRET_KEY
+            valueFrom:
+              secretKeyRef:
+                name: mediafusion-secrets
+                key: SECRET_KEY
+          - name: PROWLARR_API_KEY
+            valueFrom:
+              secretKeyRef:
+                name: prowlarr-secrets
+                key: PROWLARR_API_KEY
+        resources:
+          requests:
+            memory: "500Mi"
+            cpu: "200m"
+          limits:
+            memory: "1Gi"
+            cpu: "200m"
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mediafusion-mongodb
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mongodb
+  template:
+    metadata:
+      labels:
+        app: mongodb
+    spec:
+      containers:
+      - name: mongodb
+        image: mongo
+        ports:
+        - containerPort: 27017
+        volumeMounts:
+        {{- if .Values.mediafusion.mongovolume }}
+          - name: {{ .Values.mediafusion.mongovolume.name }}
+            mountPath: /data/db
+        {{- else }}
+          - name: mediaserver-volume
+            mountPath: /data/db
+            subPath: "{{ .Values.general.storage.subPaths.config }}/mediafusion-mongo"
+        {{- end }}
+      volumes:
+        {{- if not .Values.general.storage.customVolume }}
+        - name: mediaserver-volume
+          persistentVolumeClaim:
+            claimName: {{ .Values.general.storage.pvcName }}
+        {{- else }}
+        - name: mediaserver-volume
+          {{- toYaml .Values.general.storage.volumes | nindent 10 }}
+        {{- end }}
+        {{- if .Values.mediafusion.mongovolume }}
+        - name: {{ .Values.mediafusion.mongovolume.name }}
+          persistentVolumeClaim:
+            claimName: {{ .Values.mediafusion.mongovolume.name }}
+        {{- end }}
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mediafusion-redis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis
+  template:
+    metadata:
+      labels:
+        app: redis
+    spec:
+      containers:
+      - name: redis
+        image: redis:latest
+        ports:
+        - containerPort: 6379
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: mediafusion-svc
+  labels:
+    {{- include "k8s-mediaserver.labels" . | nindent 4 }}
+spec:
+  selector:
+    app: mediafusion
+  ports:
+    - name: mediafusion-port
+      protocol: TCP
+      port: {{ .Values.mediafusion.service.port }}
+      targetPort: {{ .Values.mediafusion.container.port }}
+{{ if eq .Values.mediafusion.service.type "NodePort" }}
+      nodePort: {{ .Values.mediafusion.service.nodePort }}
+{{ end }}
+  type: {{ .Values.mediafusion.service.type }}
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: mediafusion-mongodb-svc
+spec:
+  selector:
+    app: mediafusion-mongodb
+  ports:
+    - protocol: TCP
+      port: 27017
+      targetPort: 27017
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: mediafusion-redis-svc
+spec:
+  selector:
+    app: mediafusion-redis
+  ports:
+    - protocol: TCP
+      port: 6379
+      targetPort: 6379
+
+---
+## INGRESS
+{{ if .Values.plex.ingress.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: mediafusion
+  labels:
+    {{- include "k8s-mediaserver.labels" . | nindent 4 }}
+  {{- with .Values.mediafusion.ingress.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}  
+spec:
+{{ if .Values.mediafusion.ingress.tls.enabled }}
+  tls:
+  - hosts:
+    - {{ .Values.general.mediafusion_ingress_host | quote }}
+    secretName: {{ .Values.mediafusion.ingress.tls.secretName }}
+{{ end }}
+  ingressClassName: {{ .Values.general.ingress.ingressClassName }}
+  rules:
+  - host: {{ .Values.general.mediafusion_ingress_host | quote }}
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: mediafusion-svc
+            port:
+              number: {{ .Values.mediafusion.service.port }}
+{{ end }}
+{{ end }}

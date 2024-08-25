@@ -32,7 +32,6 @@ data:
     sed -i 's/<UrlBase>.*<\/UrlBase>/<UrlBase>\{{ .Values.prowlarr.ingress.path }}<\/UrlBase>/g' /prowlarr-config/config.xml
     sed -i 's/<ApiKey>.*<\/ApiKey>/<ApiKey>'"$PROWLARR_API_KEY"'<\/ApiKey>/g' /prowlarr-config/config.xml
 
-
 kind: ConfigMap
 metadata:
   name: init-prowlarr-cm

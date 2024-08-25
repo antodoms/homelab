@@ -6,6 +6,7 @@ general:
   ingress_host: k8s-mediaserver.k8s.test
   plex_ingress_host: k8s-plex.k8s.test
   jellyfin_ingress_host: k8s-jelly.k8s.test
+  mediafusion_ingress_host: k8s-mediafusion.k8s.text
   image_tag: latest
   podDistribution: cluster # can be "spread" or "cluster"
   #UID to run the process with
@@ -244,6 +245,7 @@ sabnzbd:
 
 prowlarr:
   enabled: true
+  api_key: 747f2f9d0fde49e4be0c3ecd4dc4aeac
   container:
     image: docker.io/linuxserver/prowlarr
     tag: develop
@@ -376,8 +378,8 @@ mediafusion:
     limits:
       memory: "800Mi"
       cpu: "200m"
-  volume:
-    name: pvc-mediafusion-config
+  mongovolume:
+    name: mediafusion-mongo-storage
     storageClassName: mayastor-sc
     annotations: {}
     labels: {}
