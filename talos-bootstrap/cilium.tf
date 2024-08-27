@@ -104,7 +104,7 @@ data "helm_template" "cilium" {
   repository = "https://helm.cilium.io"
   chart      = "cilium"
   # renovate: datasource=helm depName=cilium registryUrl=https://helm.cilium.io
-  version      = "1.16.0"
+  version      = "1.16.1"
   kube_version = var.kubernetes_version
   api_versions = []
   set {
@@ -172,6 +172,10 @@ data "helm_template" "cilium" {
     value = "default-tls-cert"
   }
   set {
+    name = "gatewayAPI.enabled"
+    value = "true"
+  }
+  set {
     name  = "envoy.enabled"
     value = "true"
   }
@@ -181,6 +185,26 @@ data "helm_template" "cilium" {
   }
   set {
     name  = "hubble.ui.enabled"
+    value = "true"
+  }
+  set {
+    name = "ipv4.enabled"
+    value = "true"
+  }
+  set {
+    name = "ipv6.enabled"
+    value = "false"
+  }
+  set {
+    name = "bgp.announce.loadbalancerIP"
+    value = "true"
+  }
+  set {
+    name = "bgpControlPlane.enabled"
+    value = "true"
+  }
+  set {
+    name = "privileged"
     value = "true"
   }
 }

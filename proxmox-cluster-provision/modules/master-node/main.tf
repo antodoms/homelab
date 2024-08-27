@@ -24,7 +24,7 @@ resource "proxmox_vm_qemu" "talos" {
     # VM CPU Settings
     cores = var.nodes[count.index].node_cpu_cores
     sockets = 1
-    cpu = "host"    
+    cpu = "host"
     
     # VM Memory Settings
     memory = var.nodes[count.index].node_memory
