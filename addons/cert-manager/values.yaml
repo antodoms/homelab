@@ -1,0 +1,22 @@
+ingressDomain: "homelab.local" # override this value as argo app
+cert-manager:
+  extraArgs:
+  - --enable-certificate-owner-ref=true
+  installCRDs: true
+  enable: true
+  createNamespace: true
+  serviceAccountName: cert-manager
+  ingressShim:
+    defaultIssuerName: letsencrypt
+    defaultIssuerKind: ClusterIssuer
+  serviceAccount:
+    create: true
+    name: cert-manager
+  webhook:
+    serviceAccount:
+      create: true
+      name: cert-manager-webhooks
+  cainjector:
+    serviceAccount:
+      create: true
+      name: cert-manager-cainjector

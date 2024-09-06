@@ -1,0 +1,10 @@
+ {{ $ip_range := split "-" .Values.clusterLoadBalancerIpRange }}
+apiVersion: "cilium.io/v2alpha1"
+kind: "CiliumLoadBalancerIPPool"
+metadata:
+  name: "external"
+spec:
+  blocks:
+    - start: {{ $ip_range._0 }}
+      stop: {{ $ip_range._1 }}
+---

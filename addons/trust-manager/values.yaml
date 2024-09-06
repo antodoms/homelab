@@ -7,21 +7,8 @@
 # see https://github.com/golang/go/blob/go1.22.3/src/crypto/x509/root_linux.go
 # see https://artifacthub.io/packages/helm/cert-manager/trust-manager
 # see https://registry.terraform.io/providers/hashicorp/helm/latest/docs/data-sources/template
-data "helm_template" "trust_manager" {
-  namespace  = "cert-manager"
-  name       = "trust-manager"
-  repository = "https://charts.jetstack.io"
-  chart      = "trust-manager"
-  # renovate: datasource=helm depName=trust-manager registryUrl=https://charts.jetstack.io
-  version      = "0.12.0"
-  kube_version = local.kubernetes_version
-  api_versions = []
-  set {
-    name  = "secretTargets.enabled"
-    value = "true"
-  }
-  set {
-    name  = "secretTargets.authorizedSecretsAll"
-    value = "true"
-  }
-}
+
+trust-manager:
+  secretTargets:
+    enabled: true
+    authorizedSecretsAll: true

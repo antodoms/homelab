@@ -7,7 +7,19 @@ argoProject: ''
 
 # ArgoCD Values
 argoCd:
-  enable: false
+  enable: true
+  createNamespace: true
+
+certManager:
+  enable: true
+  createNamespace: true
+
+trustManager:
+  enable: true
+  createNamespace: true
+
+cilium:
+  enable: true
   createNamespace: true
 
 adguard:

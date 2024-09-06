@@ -1,0 +1,85 @@
+# see https://www.talos.dev/v1.7/kubernetes-guides/network/deploying-cilium/#method-4-helm-manifests-inline-install
+# see https://docs.cilium.io/en/stable/network/servicemesh/ingress/
+# see https://docs.cilium.io/en/stable/gettingstarted/hubble_setup/
+# see https://docs.cilium.io/en/stable/gettingstarted/hubble/
+# see https://docs.cilium.io/en/stable/helm-reference/#helm-reference
+# see https://github.com/cilium/cilium/releases
+# see https://github.com/cilium/cilium/tree/v1.16.0/install/kubernetes/cilium
+# see https://registry.terraform.io/providers/hashicorp/helm/latest/docs/data-sources/template
+
+clusterLoadBalancerIpRange: "10.30.0.50-10.30.0.100"
+
+cilium:
+  ipam:
+    mode: kubernetes
+
+  ipv4:
+    enabled: true
+  ipv6:
+    enabled: false
+  hostServices:
+    enabled: true
+  hostPort:
+    enabled: true
+  nodePort:
+    enabled: false
+  externalIPs:
+    enabled: true
+  hostFirewall:
+    enabled: true
+
+  securityContext:
+    privileged: true
+    capabilities:
+      ciliumAgent:
+        - CHOWN
+        - KILL
+        - NET_ADMIN
+        - NET_RAW
+        - IPC_LOCK
+        - SYS_ADMIN
+        - SYS_RESOURCE
+        - DAC_OVERRIDE
+        - FOWNER
+        - SETGID
+        - SETUID
+      cleanCiliumState:
+        - NET_ADMIN
+        - SYS_ADMIN
+        - SYS_RESOURCE
+  cgroup:
+    autoMount:
+      enabled: false
+    hostRoot: "/sys/fs/cgroup"
+  
+  k8sServiceHost: localhost
+  k8sServicePort: 7445
+  kubeProxyReplacement: "true"
+
+  l2announcements:
+    enabled: true
+
+  devices:
+    - eth0
+
+  ingressController:
+    enabled: true
+    default: true
+    loadbalancerMode: "shared"
+    enforceHttps: true
+    defaultSecretNamespace: "kube-system"
+    defaultSecretName: "default-tls-cert"
+
+  hubble:
+    relay:
+      enabled: true
+    ui:
+      enabled: true
+
+  resources:
+    limits:
+      cpu: '2'
+      memory: 2Gi
+    requests:
+      cpu: 100m
+      memory: 128Mi

@@ -13,6 +13,12 @@ resource "random_password" "prowlarr_api_key" {
   special          = false
 }
 
+resource "kubernetes_namespace" "media-center-operator" {
+  metadata {
+    name = "media-server-operator"
+  }
+}
+
 resource "kubernetes_secret" "prowlarr_secrets" {
   count = local.media_server_enabled ? 1 : 0
   metadata {
@@ -25,6 +31,8 @@ resource "kubernetes_secret" "prowlarr_secrets" {
   }
 
   type = "generic"
+
+  depends_on = [ kubernetes_namespace.media-center-operator ]
 }
 
 resource "kubernetes_secret" "mediafusion_secrets" {
@@ -41,4 +49,6 @@ resource "kubernetes_secret" "mediafusion_secrets" {
   }
 
   type = "generic"
+
+  depends_on = [ kubernetes_namespace.media-center-operator ]
 }

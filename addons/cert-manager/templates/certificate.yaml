@@ -1,0 +1,22 @@
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: ingress
+spec:
+  isCa: true
+  subject:
+    organisations:
+      - "{{ .Values.ingressDomain }}"
+    organizationalUnits:
+      - kubernetes
+  commonName: "homelab ingress"
+  privateKey:
+    algorithm: "ECDSA" # NB Ed25519 is not yet supported by chrome 93 or firefox 91.
+    size: 256
+  duration: "4320h" # NB 4320h (180 days). default is 2160h (90 days).
+  secretName: "ingress-tls"
+  issuerRef:
+    name: self-signed-cluster-issuer
+    kind: "ClusterIssuer"
+    group: "cert-manager.io"

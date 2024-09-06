@@ -12,13 +12,21 @@ spec:
     helm:
       values: |
         metallb:
-          addressPool: ${metallb_address_pool}
+          addressPool: ${cluster_lb_ip_range}
         mayastor:
           workers:
             ${indent(12,yamlencode(worker_nodes))}
+        argoCd:
+          configs:
+            credentialTemplates:
+              ${indent(14, argo_repository_secrets)}
+            repositories:
+              ${indent(14, argo_repositories)}
       parameters:
       - name: ingressDomain
         value: ${ingress_domain}
+      - name: clusterLoadBalancerIpRange
+        value: ${cluster_lb_ip_range}
       - name: NfsServerIp
         value: ${nfs_server_ip}
       - name: MediaServerNFSPath
