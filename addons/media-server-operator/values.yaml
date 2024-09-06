@@ -32,7 +32,7 @@ general:
     #  hostPath:
     #    path: /mnt/share
   ingress:
-    ingressClassName: ""
+    ingressClassName: "cilium"
   nodeSelector: {}
 
 sonarr:
