@@ -1,0 +1,5 @@
+kubeshark:
+  tap:
+    ingress:
+      enabled: true
+      className: cilium

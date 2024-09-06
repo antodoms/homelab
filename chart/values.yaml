@@ -59,3 +59,7 @@ mediaServerOperator:
   general:
     storage:
       customVolume: true
+
+kubeshark:
+  enable: false
+  createNamespace: true

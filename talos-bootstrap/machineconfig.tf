@@ -61,9 +61,6 @@ locals {
       }
       proxy = {
         disabled = true
-        # extraArgs = {
-        #   ipvs-strict-arp = true
-        # }
       }
       network = {
         cni = {

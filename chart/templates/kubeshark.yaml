@@ -1,0 +1,38 @@
+{{- if and (.Values.kubeshark) (.Values.kubeshark.enable) -}}
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: kubeshark
+  namespace: {{ .Values.argoNamespace | default "argocd" }}
+  finalizers:
+  - resources-finalizer.argocd.argoproj.io
+spec:
+  project: {{ .Values.argoProject | default "default" }}
+  source:
+    repoURL: {{ .Values.repoUrl }}
+    path: addons/kubeshark
+    targetRevision: {{ .Values.targetRevision }}
+    helm:
+      values: |
+        kubeshark:
+        {{- toYaml .Values.kubeshark | nindent 10 }}
+      parameters:
+        - name: kubeshark.tap.ingress.host
+          value: kubeshark.{{ .Values.ingressDomain }}
+  destination:
+    server: {{ .Values.destinationServer | default "https://kubernetes.default.svc" }}
+    namespace: kubeshark
+  syncPolicy:
+    managedNamespaceMetadata:
+      labels:
+        pod-security.kubernetes.io/enforce: privileged
+        pod-security.kubernetes.io/enforce-version: latest
+    syncOptions:
+      - CreateNamespace={{ .Values.kubeshark.createNamespace }}
+    retry:
+      limit: 1
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 1m
+{{- end -}}
