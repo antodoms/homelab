@@ -81,12 +81,13 @@ ingress:
   annotations:
     kubernetes.io/ingress.class: cilium
     kubernetes.io/tls-acme: "true"
+    cert-manager.io/cluster-issuer: selfsigned
   hosts:
-    - host: adguard.homelab.local
-  tls: []
-  # - secretName: dns-tls
-  #   hosts:
-  #     - adguard.homelab.lan
+    - host: adguard.homelab.home
+  tls:
+  - secretName: adguard-tls
+    hosts:
+      - adguard.homelab.home
 
 podMonitor:
   enabled: false

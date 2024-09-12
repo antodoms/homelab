@@ -1,4 +1,4 @@
-ingressDomain: "homelab.local" # override this value as argo app
+ingressDomain: "homelab.lam" # override this value as argo app
 cert-manager:
   extraArgs:
   - --enable-certificate-owner-ref=true

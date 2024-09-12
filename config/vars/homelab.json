@@ -5,7 +5,7 @@
     "cluster_endpoint": "https://10.30.0.5:6443",
     "cluster_vip": "10.30.0.5",
     "cluster_lb_ip_range": "10.30.0.50-10.30.0.100",
-    "ingress_domain": "homelab.local",
+    "ingress_domain": "homelab.home",
     "master_nodes": [
         {
             "hostname": "talos-master-00",
