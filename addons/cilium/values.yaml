@@ -66,9 +66,9 @@ cilium:
     enabled: true
     default: true
     loadbalancerMode: "shared"
-    enforceHttps: true
-    defaultSecretNamespace: "kube-system"
-    defaultSecretName: "default-tls-cert"
+    enforceHttps: false
+    # defaultSecretNamespace: "kube-system"
+    # defaultSecretName: "default-tls-cert"
 
   hubble:
     relay:
