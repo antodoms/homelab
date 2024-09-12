@@ -205,7 +205,8 @@ metadata:
 spec:
 {{- if .Values.sonarr.ingress.tls.enabled }}
   tls:
-    - hosts:
+    - secretName: "sonarr-tls"
+      hosts:
         - {{ .Values.general.ingress_host | quote }}
 {{ end }}
   ingressClassName: {{ .Values.general.ingress.ingressClassName }}

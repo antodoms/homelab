@@ -3,3 +3,5 @@ kubeshark:
     ingress:
       enabled: true
       className: cilium
+      annotations:
+        cert-manager.io/cluster-issuer: selfsigned

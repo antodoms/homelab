@@ -230,7 +230,8 @@ metadata:
 spec:
 {{ if .Values.prowlarr.ingress.tls.enabled }}
   tls:
-    - hosts:
+    - secretName: "prowlarr-tls"
+      hosts:
         - {{ .Values.general.ingress_host | quote }}
 {{ end }}
   ingressClassName: {{ .Values.general.ingress.ingressClassName }}

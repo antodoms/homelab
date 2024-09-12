@@ -207,7 +207,8 @@ metadata:
 spec:
 {{- if .Values.radarr.ingress.tls.enabled }}
   tls:
-    - hosts:
+    - secretName: "radarr-tls"
+      hosts:
         - {{ .Values.general.ingress_host | quote }}
 {{ end }}
   ingressClassName: {{ .Values.general.ingress.ingressClassName }}

@@ -137,7 +137,8 @@ metadata:
 spec:
 {{- if .Values.jellyfin.ingress.tls.enabled }}
   tls:
-    - hosts:
+    - secretName: "jellyfin-tls"
+      hosts:
         - {{ .Values.general.jellyfin_ingress_host | quote }}
 {{ end }}
   ingressClassName: {{ .Values.general.ingress.ingressClassName }}

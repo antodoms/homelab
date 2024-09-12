@@ -197,7 +197,8 @@ metadata:
 spec:
 {{ if .Values.jackett.ingress.tls.enabled }}
   tls:
-    - hosts:
+    - secretName: "jackett-tls"
+      hosts:
         - {{ .Values.general.ingress_host | quote }}
 {{ end }}
   ingressClassName: {{ .Values.general.ingress.ingressClassName }}

@@ -256,8 +256,9 @@ metadata:
 spec:
 {{ if .Values.mediafusion.ingress.tls.enabled }}
   tls:
-  - hosts:
-    - {{ .Values.general.mediafusion_ingress_host | quote }}
+    - secretName: "mediafusion-tls"
+      hosts:
+        - {{ .Values.general.mediafusion_ingress_host | quote }}
 {{ end }}
   ingressClassName: {{ .Values.general.ingress.ingressClassName }}
   rules:

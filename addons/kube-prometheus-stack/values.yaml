@@ -44,6 +44,12 @@ kube-prometheus-stack:
     ingress:
       enabled: true
       ingressClassName: cilium
+      annotations:
+        cert-manager.io/cluster-issuer: selfsigned
+      tls:
+        - secretName: grafana-general-tls
+          hosts:
+            - grafana.homelab.home
     grafana.ini:
       server:
         root_url: ""
