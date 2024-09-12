@@ -7,8 +7,8 @@ spec:
   isCA: true
   commonName: "homelab ingress"
   subject:
-    organisations:
-      - "{{ .Values.ingressDomain }}"
+    # organisations:
+    #   - "{{ .Values.ingressDomain }}"
     organizationalUnits:
       - kubernetes
   privateKey:
