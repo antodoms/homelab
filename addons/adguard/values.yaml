@@ -12,6 +12,7 @@ adguard:
     # Overrides the image tag whose default is the chart appVersion.
     tag: ""
 
+  replicas: 3
   securityContext: {}
   # capabilities:
   #   drop:
@@ -33,11 +34,12 @@ adguard:
   #   memory: 128Mi
 
   config:
-    users:
-      - name: admin
-        password: y0urpassword
+    users: []
+      # - name: admin
+      #   password: y0urpassword
     upstream_dns:
-      - https://dns.cloudflare.com/dns-query
+      - "https://dns.cloudflare.com/dns-query"
+      - "[/homelab.home/]10.27.27.1:53"
     rewrites: []
     # - domain: '*.example.com'
     #   answer: '192.168.0.100'
@@ -47,7 +49,7 @@ adguard:
     # - '@@||example.com^'
 
 prometheusExporter:
-  enabled: true
+  enabled: false
 
   image:
     repository: ebrianne/adguard-exporter

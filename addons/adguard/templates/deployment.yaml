@@ -5,6 +5,7 @@ metadata:
   labels:
     {{- include "adguard.labels" . | nindent 4 }}
 spec:
+  replicas: {{ .Values.adguard.replicas }}
   selector:
     matchLabels:
       {{- include "adguard.selectorLabels" . | nindent 6 }}

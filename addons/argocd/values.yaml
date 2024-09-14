@@ -82,7 +82,7 @@ argo-cd:
   repoServer:
     autoscaling:
       enabled: true
-      maxReplicas: 1
+      maxReplicas: 3
     resources:
       limits:
         memory: 1024Mi
@@ -157,7 +157,7 @@ argo-cd:
       - --insecure
     autoscaling:
       enabled: true
-      maxReplicas: 1
+      maxReplicas: 3
     config:
       helm.valuesFileSchemes: >-
         secrets
