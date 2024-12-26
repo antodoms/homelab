@@ -106,11 +106,11 @@ data "helm_template" "cilium" {
   }
   set {
     name  = "ingressController.enabled"
-    value = "true"
+    value = "false"
   }
   set {
     name  = "ingressController.default"
-    value = "true"
+    value = "false"
   }
   set {
     name  = "ingressController.loadbalancerMode"
@@ -122,7 +122,7 @@ data "helm_template" "cilium" {
   }
   set {
     name = "gatewayAPI.enabled"
-    value = "true"
+    value = "false"
   }
   set {
     name  = "envoy.enabled"
@@ -146,11 +146,11 @@ data "helm_template" "cilium" {
   }
   set {
     name = "bgp.announce.loadbalancerIP"
-    value = "true"
+    value = "false"
   }
   set {
     name = "bgpControlPlane.enabled"
-    value = "true"
+    value = "false"
   }
   set {
     name = "privileged"

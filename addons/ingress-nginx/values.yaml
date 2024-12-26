@@ -1,0 +1,7 @@
+ingress-nginx:
+  controller:
+    service:
+      type: LoadBalancer
+      externalTrafficPolicy: "Local"
+      annotations:
+        metallb.universe.tf/loadBalancerIPs: 10.30.0.50

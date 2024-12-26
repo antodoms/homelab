@@ -63,8 +63,8 @@ cilium:
     - eth0
 
   ingressController:
-    enabled: true
-    default: true
+    enabled: false
+    default: false
     loadbalancerMode: "shared"
     enforceHttps: false
 

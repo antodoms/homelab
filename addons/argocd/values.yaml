@@ -201,11 +201,11 @@ argo-cd:
 
     ingress:
       annotations:
-        kubernetes.io/ingress.class: cilium
+        kubernetes.io/ingress.class: nginx
         cert-manager.io/cluster-issuer: selfsigned
       enabled: true
       labels: {}
-      ingressClassName: cilium
+      ingressClassName: nginx
       # -- Enable TLS configuration for the hostname defined at `server.ingress.hostname`
       ## TLS certificate will be retrieved from a TLS secret `argocd-server-tls`
       ## You can create this secret via `certificate` or `certificateSecret` option

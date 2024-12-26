@@ -43,7 +43,7 @@ kube-prometheus-stack:
     createNamespace: true
     ingress:
       enabled: true
-      ingressClassName: cilium
+      ingressClassName: nginx
       annotations:
         cert-manager.io/cluster-issuer: selfsigned
       tls:

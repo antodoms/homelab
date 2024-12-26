@@ -31,6 +31,11 @@ metallb:
   enable: true
   addressPool: ""
 
+# Nginx Values
+ingressNginx:
+  enable: true
+  createNamespace: true
+
 # Kube Prometheus Stack
 kubePrometheusStack:
   enable: true

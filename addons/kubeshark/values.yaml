@@ -2,6 +2,6 @@ kubeshark:
   tap:
     ingress:
       enabled: true
-      className: cilium
+      className: nginx
       annotations:
         cert-manager.io/cluster-issuer: selfsigned

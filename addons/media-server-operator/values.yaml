@@ -32,7 +32,7 @@ general:
     #  hostPath:
     #    path: /mnt/share
   ingress:
-    ingressClassName: "cilium"
+    ingressClassName: nginx
     annotations:
       cert-manager.io/cluster-issuer: selfsigned
   nodeSelector: {}
