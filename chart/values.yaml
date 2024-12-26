@@ -28,7 +28,7 @@ adguard:
 
 # MetalLB
 metallb:
-  enable: false
+  enable: true
   addressPool: ""
 
 # Kube Prometheus Stack
