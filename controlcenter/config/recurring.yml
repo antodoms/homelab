@@ -1,0 +1,5 @@
+production:
+  periodic_command:
+    command: "Parsers::TamilmvParser.process"
+    priority: 2
+    schedule: at 5am every day
