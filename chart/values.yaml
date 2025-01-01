@@ -10,6 +10,10 @@ argoCd:
   enable: true
   createNamespace: true
 
+argoCdImageUpdater:
+  enable: true
+  createNamespace: true
+
 certManager:
   enable: true
   createNamespace: true
