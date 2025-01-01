@@ -1,0 +1,4 @@
+bucket  = "zetech.terraform-state.homelab"
+key     = "application/controlcenter/terraform.tfstate"
+region  = "ap-southeast-2"
+encrypt = true

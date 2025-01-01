@@ -1,6 +1,4 @@
 class MoviesController < ApplicationController
-    before_action :authenticate_user!
-
     def index
         @movies = Movie.where(status: "completed")
                        .order(created_at: :desc)
