@@ -68,3 +68,7 @@ mediaServerOperator:
 kubeshark:
   enable: false
   createNamespace: true
+
+dockerRegistry:
+  enable: true
+  createNamespace: true
