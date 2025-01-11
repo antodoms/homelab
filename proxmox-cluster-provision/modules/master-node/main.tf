@@ -3,18 +3,18 @@
 resource "proxmox_vm_qemu" "talos" {
 
     # Dynamic provisioning of multiple nodes
-    count = length(var.nodes)
+    for_each = { for idx, node in var.nodes : idx => node }
 
     # VM General Settings
     target_node = var.proxmox_node
-    name = var.nodes[count.index].node_name
-    vmid = var.nodes[count.index].vm_id
+    name = each.value.node_name
+    vmid = each.value.vm_id
 
     # VM Advanced General Settings
     onboot = true 
 
     # VM OS Settings
-    clone = var.nodes[count.index].clone_target
+    clone = each.value.clone_target
 
     # VM System Settings
     agent = 0
@@ -22,12 +22,12 @@ resource "proxmox_vm_qemu" "talos" {
     agent_timeout = 5
     
     # VM CPU Settings
-    cores = var.nodes[count.index].node_cpu_cores
+    cores = each.value.node_cpu_cores
     sockets = 1
     cpu = "host"
     
     # VM Memory Settings
-    memory = var.nodes[count.index].node_memory
+    memory = each.value.node_memory
 
     # VM Network Settings
     network {
@@ -48,7 +48,7 @@ resource "proxmox_vm_qemu" "talos" {
         scsi {
             scsi0 {
                 disk {
-                    size = var.nodes[count.index].node_disk
+                    size = each.value.node_disk
                     format    = "raw"
                     iothread  = true
                     backup    = false
@@ -60,7 +60,7 @@ resource "proxmox_vm_qemu" "talos" {
 
     # VM Cloud-Init Settings
     os_type = "cloud-init"
-    ipconfig0 = var.nodes[count.index].node_ipconfig
+    ipconfig0 = each.value.node_ipconfig
 }
 
 output "mac_addrs" {
