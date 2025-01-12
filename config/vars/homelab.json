@@ -48,13 +48,6 @@
             "cpu": "4",
             "mem": 8192,
             "node": "hp-z-server-b"
-        },
-        {
-            "hostname": "talos-master-06",
-            "address": "10.30.0.17",
-            "cpu": "4",
-            "mem": 8192,
-            "node": "hp-z-server-b"
         }
     ],
     "worker_nodes": [
