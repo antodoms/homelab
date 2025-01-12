@@ -24,10 +24,27 @@ terraform {
       source  = "carlpett/sops"
       version = "0.7.1"
     }
+
+    proxmox = {
+      source = "telmate/proxmox"
+      version = "3.0.1-rc3"
+    }
+
+    local = {
+      source = "hashicorp/local"
+      version = "2.5.2"
+    }
   }
 }
 
 
 provider "aws" {
   region = var.aws_region
+}
+
+provider "proxmox" {
+    pm_api_url = local.proxmox_url
+    pm_user = local.proxmox_username
+    pm_password = local.proxmox_password
+    pm_tls_insecure = true
 }

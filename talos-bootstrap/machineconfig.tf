@@ -43,6 +43,20 @@ locals {
           enabled: true
         }
       }
+      registries = {
+        config = {
+          "registry.${local.ingress_domain}" = {
+            tls = {
+              insecureSkipVerify = true
+            }
+          }
+          "docker-registry.docker-registry.svc.cluster.local:5000" = {
+            tls = {
+              insecureSkipVerify = true
+            }
+          }
+        }
+      }
     }
 
     cluster = {

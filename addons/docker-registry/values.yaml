@@ -18,9 +18,4 @@ docker-registry:
     enabled: true
     annotations:
       cert-manager.io/cluster-issuer: selfsigned
-    hosts:
-      - registry.homelab.home
-    tls:
-      - secretName: registry-general-tls
-        hosts:
-          - registry.homelab.home
+      nginx.ingress.kubernetes.io/proxy-body-size: "1000m"  # Adjust size as needed

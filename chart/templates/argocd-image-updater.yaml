@@ -1,0 +1,44 @@
+{{- if and (.Values.argoCdImageUpdater) (.Values.argoCdImageUpdater.enable) -}}
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: argo-cd-image-updater
+  namespace: {{ .Values.argoNamespace | default "argocd" }}
+  finalizers:
+  - resources-finalizer.argocd.argoproj.io
+spec:
+  project: {{ .Values.argoProject | default "default" }}
+  source:
+    repoURL: {{ .Values.repoUrl }}
+    path: addons/argocd-image-updater
+    targetRevision: {{ .Values.targetRevision }}
+    helm:
+      values: |
+        argocd-image-updater:
+          config:
+            registries:
+              - name: docker-registry
+                api_url: https://registry.{{ .Values.ingressDomain }}
+                insecure: true
+                prefix: registry.{{ .Values.ingressDomain }}
+              - name: docker-registry-internal
+                api_url: http://docker-registry.docker-registry.svc.cluster.local:5000
+                insecure: true
+                prefix: docker-registry.docker-registry.svc.cluster.local:5000
+        {{- toYaml .Values.argoCdImageUpdater | nindent 10 }}
+  destination:
+    server: {{ .Values.destinationServer | default "https://kubernetes.default.svc" }}
+    namespace: argocd
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace={{ .Values.argoCd.createNamespace }}
+    automated:
+      selfHeal: true
+      prune: true
+    retry:
+      limit: 1
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 1m
+{{- end -}}
