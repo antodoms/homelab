@@ -49,5 +49,4 @@
 # Ignore Docker-related files
 /.dockerignore
 /Dockerfile*
-
 /deploy/*
