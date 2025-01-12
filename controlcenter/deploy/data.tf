@@ -12,11 +12,10 @@ data "terraform_remote_state" "talos-bootstrap" {
   }
 }
 
-data "aws_s3_object" "config" {
-  bucket = "zetech.terraform-state.${var.account}"
-  key    = "config${var.config_branch == "refs/heads/main" ? "/" : "/${var.config_branch}/"}${var.account}.json"
+data "local_file" "config_file" {
+  filename = "../../config/vars/${var.account}.json"
 }
 
 locals {
-  config = jsondecode(data.aws_s3_object.config.body)
+  config = jsondecode(data.local_file.config_file.content)
 }
