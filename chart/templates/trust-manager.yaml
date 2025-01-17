@@ -18,6 +18,7 @@ spec:
   syncPolicy:
     syncOptions:
       - CreateNamespace={{ .Values.trustManager.createNamespace }}
+      - ServerSideApply=true
     automated:
       selfHeal: true
       prune: true
