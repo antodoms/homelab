@@ -6,6 +6,8 @@ metadata:
   namespace: {{ .Values.argoNamespace | default "argocd" }}
   finalizers:
   - resources-finalizer.argocd.argoproj.io
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
 spec:
   project: {{ .Values.argoProject | default "default" }}
   source:
@@ -14,10 +16,9 @@ spec:
     targetRevision: {{ .Values.targetRevision }}
   destination:
     server: {{ .Values.destinationServer | default "https://kubernetes.default.svc" }}
-    namespace: trust-manager
+    namespace: cert-manager
   syncPolicy:
     syncOptions:
-      - CreateNamespace={{ .Values.trustManager.createNamespace }}
       - ServerSideApply=true
     automated:
       selfHeal: true
