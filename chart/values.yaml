@@ -64,7 +64,7 @@ talosCcm:
 
 mediaServerOperator:
   enable: true
-  createNamespace: true
+  createNamespace: false # namespace is created by terraform
   general:
     storage:
       customVolume: true

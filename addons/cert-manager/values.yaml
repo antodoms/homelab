@@ -2,16 +2,15 @@ ingressDomain: "homelab.lam" # override this value as argo app
 cert-manager:
   extraArgs:
   - --enable-certificate-owner-ref=true
-  installCRDs: true
+  crds:
+    enable: true
+    keep: true
   enable: true
   createNamespace: true
   serviceAccountName: cert-manager
   ingressShim:
     defaultIssuerName: letsencrypt
     defaultIssuerKind: ClusterIssuer
-  serviceAccount:
-    create: true
-    name: cert-manager
   webhook:
     serviceAccount:
       create: true
@@ -20,3 +19,32 @@ cert-manager:
     serviceAccount:
       create: true
       name: cert-manager-cainjector
+      annotations:
+        argocd.argoproj.io/sync-wave: "1"
+    deploymentAnnotations:
+      argocd.argoproj.io/sync-wave: "1"
+    podAnnotations:
+      argocd.argoproj.io/sync-wave: "1"
+    serviceAnnotations:
+      argocd.argoproj.io/sync-wave: "1"
+  serviceAccount:
+    create: true
+    name: cert-manager
+    annotations:
+      argocd.argoproj.io/sync-wave: "1"
+  deploymentAnnotations:
+    argocd.argoproj.io/sync-wave: "1"
+  podAnnotations:
+    argocd.argoproj.io/sync-wave: "1"
+  serviceAnnotations:
+    argocd.argoproj.io/sync-wave: "1"
+  prometheus:
+    servicemonitor:
+      annotations:
+        argocd.argoproj.io/sync-wave: "1"
+  podmonitor:
+    annotations:
+      argocd.argoproj.io/sync-wave: "1"
+  startupapicheck:
+    podAnnotations:
+      argocd.argoproj.io/sync-wave: "1"
