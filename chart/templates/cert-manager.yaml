@@ -14,10 +14,6 @@ spec:
     repoURL: {{ .Values.repoUrl }}
     path: addons/cert-manager
     targetRevision: {{ .Values.targetRevision }}
-    helm:
-      values: |
-        cert-manager:
-        {{- toYaml .Values.certManager | nindent 10 }}
   destination:
     server: {{ .Values.destinationServer | default "https://kubernetes.default.svc" }}
     namespace: cert-manager

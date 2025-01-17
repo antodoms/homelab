@@ -20,7 +20,7 @@ certManager:
 
 trustManager:
   enable: true
-  createNamespace: true
+  createNamespace: false
 
 cilium:
   enable: true

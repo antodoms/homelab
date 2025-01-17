@@ -2,22 +2,16 @@ cert-manager:
   extraArgs:
   - --enable-certificate-owner-ref=true
   crds:
-    enable: true
+    enabled: true
     keep: true
-  enable: true
-  createNamespace: true
-  serviceAccountName: cert-manager
   ingressShim:
     defaultIssuerName: letsencrypt
     defaultIssuerKind: ClusterIssuer
   webhook:
     serviceAccount:
       create: true
-      name: cert-manager-webhooks
   cainjector:
     serviceAccount:
       create: true
-      name: cert-manager-cainjector
   serviceAccount:
     create: true
-    name: cert-manager
