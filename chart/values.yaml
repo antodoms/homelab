@@ -54,7 +54,7 @@ localPathStorage:
   enable: false
   createNamespace: true
 
-mayastor:
+openebs:
   enable: true
   createNamespace: true
 

@@ -13,7 +13,7 @@ spec:
       values: |
         metallb:
           addressPool: ${cluster_lb_ip_range}
-        mayastor:
+        openebs:
           workers:
             ${indent(12,yamlencode(worker_nodes))}
         argoCd:

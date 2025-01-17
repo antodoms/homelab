@@ -1,6 +1,6 @@
 apiVersion: v2
-name: mayastor
-description: A Helm chart for mayastor
+name: openebs
+description: A Helm chart for openebs
 
 # Application charts are a collection of templates that can be packaged into versioned archives
 # to be deployed.
@@ -15,6 +15,6 @@ version: 0.1.1
 appVersion: "1.0"
 
 dependencies:
-- name: mayastor
-  version: 2.7.2
-  repository: https://openebs.github.io/mayastor-extensions/
+- name: openebs
+  version: 4.1.1
+  repository: https://openebs.github.io/openebs

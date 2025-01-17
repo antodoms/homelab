@@ -1,8 +1,8 @@
-{{- if ((.Values.mayastor).enable) }}
+{{- if ((.Values.openebs).enable) }}
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: mayastor
+  name: openebs
   namespace: {{ .Values.argoNamespace | default "argocd" }}
   finalizers:
     - resources-finalizer.argocd.argoproj.io
@@ -12,22 +12,22 @@ spec:
   project: {{ .Values.argoProject | default "default" }}
   source:
     repoURL: {{ required "repoUrl value is required" .Values.repoUrl }}
-    path: addons/mayastor
+    path: addons/openebs
     targetRevision: {{ .Values.targetRevision }}
     helm:
       values: |
-        mayastor:
-          {{- toYaml .Values.mayastor | nindent 10 }}
+        openebs:
+          {{- toYaml .Values.openebs | nindent 10 }}
   destination:
     server: {{ .Values.destinationServer | default "https://kubernetes.default.svc" }}
-    namespace: mayastor
+    namespace: openebs
   syncPolicy:
     managedNamespaceMetadata:
       labels:
         pod-security.kubernetes.io/enforce: privileged
         pod-security.kubernetes.io/enforce-version: latest
     syncOptions:
-      - CreateNamespace={{ .Values.mayastor.createNamespace }}
+      - CreateNamespace={{ .Values.openebs.createNamespace }}
     automated:
       selfHeal: true
       prune: true
@@ -41,7 +41,7 @@ spec:
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: mayastor-deps
+  name: openebs-deps
   namespace: {{ .Values.argoNamespace | default "argocd" }}
   finalizers:
     - resources-finalizer.argocd.argoproj.io
@@ -51,15 +51,15 @@ spec:
   project: {{ .Values.argoProject | default "default" }}
   source:
     repoURL: {{ required "repoUrl value is required" .Values.repoUrl }}
-    path: addons/mayastor-deps
+    path: addons/openebs-deps
     targetRevision: {{ .Values.targetRevision }}
     helm:
       values: |
-        mayastor-deps:
-          {{- toYaml .Values.mayastor | nindent 10 }}
+        openebs-deps:
+          {{- toYaml .Values.openebs | nindent 10 }}
   destination:
     server: {{ .Values.destinationServer | default "https://kubernetes.default.svc" }}
-    namespace: mayastor
+    namespace: openebs
   syncPolicy:
     automated:
       selfHeal: true
