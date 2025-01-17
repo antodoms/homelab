@@ -6,6 +6,8 @@ metadata:
   namespace: {{ .Values.argoNamespace | default "argocd" }}
   finalizers:
     - resources-finalizer.argocd.argoproj.io
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
 spec:
   project: {{ .Values.argoProject | default "default" }}
   source:
@@ -15,7 +17,7 @@ spec:
     helm:
       values: |
         mayastor:
-        {{- toYaml .Values.mayastor | nindent 10 }}
+          {{- toYaml .Values.mayastor | nindent 10 }}
   destination:
     server: {{ .Values.destinationServer | default "https://kubernetes.default.svc" }}
     namespace: mayastor
@@ -35,4 +37,38 @@ spec:
         duration: 5s
         factor: 2
         maxDuration: 1m
-  {{- end -}}
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: mayastor-deps
+  namespace: {{ .Values.argoNamespace | default "argocd" }}
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+spec:
+  project: {{ .Values.argoProject | default "default" }}
+  source:
+    repoURL: {{ required "repoUrl value is required" .Values.repoUrl }}
+    path: addons/mayastor-deps
+    targetRevision: {{ .Values.targetRevision }}
+    helm:
+      values: |
+        mayastor-deps:
+          {{- toYaml .Values.mayastor | nindent 10 }}
+  destination:
+    server: {{ .Values.destinationServer | default "https://kubernetes.default.svc" }}
+    namespace: mayastor
+  syncPolicy:
+    automated:
+      selfHeal: true
+      prune: true
+    retry:
+      limit: 1
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 1m
+---
+{{- end -}}

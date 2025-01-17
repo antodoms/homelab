@@ -1,10 +1,8 @@
-{{- range .Values.mayastor.workers }}
+{{- range .Values.mayastor-deps.workers }}
 apiVersion: "openebs.io/v1beta1"
 kind: DiskPool
 metadata:
   name: pool-on-{{ .hostname }}
-  annotations:
-    argocd.argoproj.io/sync-wave: "3"
 spec:
   node: {{ .hostname }}
   disks: ["/dev/sdb"]

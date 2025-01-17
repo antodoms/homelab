@@ -4,7 +4,6 @@ metadata:
   name: mayastor-sc
   annotations:
     storageclass.kubernetes.io/is-default-class: "true"
-    argocd.argoproj.io/sync-wave: "3"
 parameters:
   ioTimeout: "30"
   protocol: nvmf

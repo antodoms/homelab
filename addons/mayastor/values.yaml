@@ -1,9 +1,4 @@
 mayastor:
-  workers: []
-    # - hostname: worker-1
-    #   address: "10.1.0.20"
-    # - hostname: worker-2
-    #   address: "10.1.0.21"
   etcd:
     persistence:
       storageClass: "mayastor-etcd-localpv"
