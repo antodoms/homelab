@@ -1,7 +1,7 @@
 # proxmox_bridge       = "vmbr0" 
 # proxmox_storage      = "local-lvm"
 proxmox_storage_type = "lvm"
-talos_version        = "v1.7.6"
+talos_version        = "v1.9.2"
 
 # proxmox_url          = "https://192.168.1.5:8006/api2/json"
 # proxmox_username     = "root@pam" 

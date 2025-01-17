@@ -37,5 +37,9 @@ variable "iso_file_path" {
 }
 
 locals {
-  image = "https://github.com/talos-systems/talos/releases/download/${var.talos_version}/nocloud-amd64.raw.xz"
+  # image = "https://github.com/talos-systems/talos/releases/download/${var.talos_version}/nocloud-amd64.raw.xz"
+  
+  # generate raw.xz image from https://factory.talos.dev/
+  # select cloud  provider option and then select nocloud-amd64.raw.xz
+  image = "https://factory.talos.dev/image/376567988ad370138ad8b2698212367b8edcb69b5fd68c80be1f2ec7d603b4ba/${var.talos_version}/nocloud-amd64.raw.xz"
 }
