@@ -1,4 +1,4 @@
-{{- range .Values.openebs-deps.workers }}
+{{- range .Values.openebsDeps.workers }}
 apiVersion: "openebs.io/v1beta1"
 kind: DiskPool
 metadata:

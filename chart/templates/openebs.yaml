@@ -55,7 +55,7 @@ spec:
     targetRevision: {{ .Values.targetRevision }}
     helm:
       values: |
-        openebs-deps:
+        openebsDeps:
           {{- toYaml .Values.openebs | nindent 10 }}
   destination:
     server: {{ .Values.destinationServer | default "https://kubernetes.default.svc" }}

@@ -16,7 +16,28 @@ data "talos_machine_configuration" "worker" {
           disk = "/dev/sda"
           disk = "/dev/sdb"
         }
-        
+        sysctls = {
+          "vm.nr_hugepages" = "1024"
+        }
+        nodeLabels = {
+          "openebs.io/engine" = "mayastor"
+        }
+        kubelet = {
+          extraMounts = [
+            {
+              destination = "/var/openebs"
+              type = "bind"
+              source = "/var/openebs"
+              options = ["bind", "rshared", "rw"]
+            },
+            {
+              destination = "/var/local"
+              type = "bind"
+              source = "/var/local"
+              options = ["bind", "rshared", "rw"]
+            }
+          ]
+        }
         network = {
           hostname = local.worker_nodes[count.index].hostname
           nameservers = [

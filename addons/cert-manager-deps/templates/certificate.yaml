@@ -8,7 +8,7 @@ spec:
   commonName: "homelab ingress"
   subject:
     organisations:
-      - "{{ .Values.cert-manager-deps.ingressDomain }}"
+      - "{{ .Values.certManagerDeps.ingressDomain }}"
     organizationalUnits:
       - kubernetes
   privateKey:

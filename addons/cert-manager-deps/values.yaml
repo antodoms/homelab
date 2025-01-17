@@ -1,0 +1,2 @@
+certManagerDeps:
+  ingressDomain: "homelab.lam" # override this value as argo app

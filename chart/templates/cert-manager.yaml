@@ -47,7 +47,7 @@ spec:
     targetRevision: {{ .Values.targetRevision }}
     helm:
       values: |
-        cert-manager-deps:
+        certManagerDeps:
           ingressDomain: {{ .Values.ingressDomain }}
   destination:
     server: {{ .Values.destinationServer | default "https://kubernetes.default.svc" }}

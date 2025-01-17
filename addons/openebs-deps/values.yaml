@@ -1,4 +1,4 @@
-openebs-deps:
+openebsDeps:
   workers: []
     # - hostname: worker-1
     #   address: "10.1.0.20"
