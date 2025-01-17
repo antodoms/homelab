@@ -35,6 +35,7 @@ spec:
   syncPolicy:
     syncOptions:
       - CreateNamespace={{ .Values.argoCd.createNamespace }}
+      - ServerSideApply=true
     automated:
       selfHeal: true
       prune: true
