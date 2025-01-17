@@ -23,8 +23,15 @@ spec:
     server: {{ .Values.destinationServer | default "https://kubernetes.default.svc" }}
     namespace: kube-system
   syncPolicy:
+    managedNamespaceMetadata:
+      labels:
+        pod-security.kubernetes.io/enforce: privileged
+        pod-security.kubernetes.io/enforce-version: latest
     syncOptions:
       - CreateNamespace={{ .Values.cilium.createNamespace }}
+    automated:
+      selfHeal: true
+      prune: true
     retry:
       limit: 1
       backoff:

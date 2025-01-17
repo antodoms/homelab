@@ -24,11 +24,11 @@ spec:
       labels:
         pod-security.kubernetes.io/enforce: privileged
         pod-security.kubernetes.io/enforce-version: latest
+    syncOptions:
+      - CreateNamespace={{ .Values.mayastor.createNamespace }}
     automated:
       selfHeal: true
       prune: true
-    syncOptions:
-      - CreateNamespace={{ .Values.mayastor.createNamespace }}
     retry:
       limit: 1
       backoff:
