@@ -6,6 +6,8 @@ metadata:
   namespace: {{ .Values.argoNamespace | default "argocd" }}
   finalizers:
   - resources-finalizer.argocd.argoproj.io
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
 spec:
   project: {{ .Values.argoProject | default "default" }}
   source:
@@ -16,19 +18,53 @@ spec:
       values: |
         cert-manager:
         {{- toYaml .Values.certManager | nindent 10 }}
-      parameters:
-      - name: ingressDomain
-        value: {{ .Values.ingressDomain }}
   destination:
     server: {{ .Values.destinationServer | default "https://kubernetes.default.svc" }}
     namespace: cert-manager
   syncPolicy:
     syncOptions:
       - CreateNamespace={{ .Values.certManager.createNamespace }}
+    automated:
+      selfHeal: true
+      prune: true
     retry:
       limit: 1
       backoff:
         duration: 5s
         factor: 2
         maxDuration: 1m
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: cert-manager-deps
+  namespace: {{ .Values.argoNamespace | default "argocd" }}
+  finalizers:
+  - resources-finalizer.argocd.argoproj.io
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+spec:
+  project: {{ .Values.argoProject | default "default" }}
+  source:
+    repoURL: {{ .Values.repoUrl }}
+    path: addons/cert-manager-deps
+    targetRevision: {{ .Values.targetRevision }}
+    helm:
+      values: |
+        cert-manager-deps:
+          ingressDomain: {{ .Values.ingressDomain }}
+  destination:
+    server: {{ .Values.destinationServer | default "https://kubernetes.default.svc" }}
+    namespace: cert-manager
+  syncPolicy:
+    automated:
+      selfHeal: true
+      prune: true
+    retry:
+      limit: 1
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 1m
+---
 {{- end -}}
