@@ -27,6 +27,20 @@
             "cpu": "4",
             "mem": 16384,
             "node": "hp-gpu"
+        },
+        {
+            "hostname": "talos-master-03",
+            "address": "10.30.0.14",
+            "cpu": "4",
+            "mem": 16384,
+            "node": "hp-z-server-a"
+        },
+        {
+            "hostname": "talos-master-04",
+            "address": "10.30.0.15",
+            "cpu": "4",
+            "mem": 16384,
+            "node": "hp-z-server-b"
         }
     ],
     "worker_nodes": [
