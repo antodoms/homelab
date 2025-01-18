@@ -13,7 +13,8 @@ locals {
     proxmox_nodename = try(data.sops_file.secret.data["proxmox_nodename"], var.proxmox_node)
 
     proxmox_bridge = try(data.sops_file.secret.data["proxmox_bridge"], var.proxmox_bridge)
-    proxmox_storage = try(data.sops_file.secret.data["proxmox_storage"], var.proxmox_storage)
+    proxmox_local_storage = try(data.sops_file.secret.data["proxmox_local_storage"], var.proxmox_local_storage)
+    proxmox_external_storage = try(data.sops_file.secret.data["proxmox_external_storage"], var.proxmox_external_storage)
 
     config = jsondecode(data.local_file.config_file.content)
     kubernetes_version = try(local.config["kubernetes_version"], var.kubernetes_version)

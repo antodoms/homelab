@@ -40,7 +40,7 @@ resource "proxmox_vm_qemu" "talos" {
         ide {
           ide3 {
             cloudinit {
-              storage = var.proxmox_storage
+              storage = var.proxmox_external_storage
             }
           }
         }
@@ -51,7 +51,7 @@ resource "proxmox_vm_qemu" "talos" {
                     format    = "raw"
                     iothread  = true
                     backup    = false
-                    storage   = var.proxmox_storage
+                    storage   = var.proxmox_local_storage
                 }
             }
             scsi1 {
@@ -60,7 +60,7 @@ resource "proxmox_vm_qemu" "talos" {
                     format    = "raw"
                     iothread  = true
                     backup    = false
-                    storage   = var.proxmox_storage
+                    storage   = var.proxmox_external_storage
                 }
             }
         }

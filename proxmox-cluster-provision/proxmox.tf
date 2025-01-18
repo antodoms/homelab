@@ -7,7 +7,8 @@ module "compute_master" {
   nodes                    = each.value
 
   proxmox_bridge           = local.proxmox_bridge
-  proxmox_storage          = local.proxmox_storage
+  proxmox_local_storage    = local.proxmox_local_storage
+  proxmox_external_storage = local.proxmox_external_storage
 
   providers = {
     proxmox = proxmox
@@ -22,7 +23,8 @@ module "compute_worker" {
   nodes                    = each.value
 
   proxmox_bridge           = local.proxmox_bridge
-  proxmox_storage          = local.proxmox_storage
+  proxmox_local_storage    = local.proxmox_local_storage
+  proxmox_external_storage = local.proxmox_external_storage
 
   providers = {
     proxmox = proxmox

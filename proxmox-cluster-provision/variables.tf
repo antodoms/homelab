@@ -32,9 +32,14 @@ variable "proxmox_bridge" {
     default = "vmbr0"
 }
 
-variable "proxmox_storage" {
+variable "proxmox_local_storage" {
     type = string
     default = "local-lvm"
+}
+
+variable "proxmox_external_storage" {
+    type = string
+    default = "asustorNAS"
 }
 
 variable "talos_version" {
