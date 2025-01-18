@@ -12,7 +12,7 @@ terraform {
     # see https://github.com/siderolabs/terraform-provider-talos
     talos = {
       source = "siderolabs/talos"
-      version = "0.5.0"
+      version = "0.7.0"
     }
 
     helm = {
@@ -34,6 +34,21 @@ terraform {
       source = "hashicorp/local"
       version = "2.5.2"
     }
+
+    kubernetes = {
+      source  = "hashicorp/kubernetes"
+      version = ">= 2.20"
+    }
+
+    kubectl = {
+      source  = "alekc/kubectl"
+      version = ">= 2.0.4"
+    }
+
+    tls = {
+      source = "hashicorp/tls"
+      version = "4.0.5"
+    }
   }
 }
 
@@ -47,4 +62,19 @@ provider "proxmox" {
     pm_user = local.proxmox_username
     pm_password = local.proxmox_password
     pm_tls_insecure = true
+}
+
+provider "kubernetes" {
+  host                   = try(data.talos_cluster_kubeconfig.this.kubernetes_client_configuration.host, "")
+  cluster_ca_certificate = try(base64decode(data.talos_cluster_kubeconfig.this.kubernetes_client_configuration.ca_certificate), "")
+  client_key             = try(base64decode(data.talos_cluster_kubeconfig.this.kubernetes_client_configuration.client_key), "")
+  client_certificate     = try(base64decode(data.talos_cluster_kubeconfig.this.kubernetes_client_configuration.client_certificate), "")
+}
+
+provider "kubectl" {
+  load_config_file       = false
+  host                   = try(data.talos_cluster_kubeconfig.this.kubernetes_client_configuration.host, "")
+  cluster_ca_certificate = try(base64decode(data.talos_cluster_kubeconfig.this.kubernetes_client_configuration.ca_certificate), "")
+  client_key             = try(base64decode(data.talos_cluster_kubeconfig.this.kubernetes_client_configuration.client_key), "")
+  client_certificate     = try(base64decode(data.talos_cluster_kubeconfig.this.kubernetes_client_configuration.client_certificate), "")
 }

@@ -23,7 +23,7 @@ trustManager:
   createNamespace: false
 
 cilium:
-  enable: true
+  enable: false
   createNamespace: true
 
 adguard:
