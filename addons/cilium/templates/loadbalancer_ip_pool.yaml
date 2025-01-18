@@ -1,4 +1,6 @@
- {{ $ip_range := split "-" .Values.clusterLoadBalancerIpRange }}
+{{ if .Values.cilium.l2announcements.enabled }}
+{{ $ip_range := split "-" .Values.clusterLoadBalancerIpRange }}
+{{ if eq (len $ip_range) 2 }}
 apiVersion: "cilium.io/v2alpha1"
 kind: "CiliumLoadBalancerIPPool"
 metadata:
@@ -8,3 +10,5 @@ spec:
     - start: {{ $ip_range._0 }}
       stop: {{ $ip_range._1 }}
 ---
+{{ end }}
+{{ end }}

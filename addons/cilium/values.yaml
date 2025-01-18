@@ -7,7 +7,7 @@
 # see https://github.com/cilium/cilium/tree/v1.16.0/install/kubernetes/cilium
 # see https://registry.terraform.io/providers/hashicorp/helm/latest/docs/data-sources/template
 
-clusterLoadBalancerIpRange: "10.30.0.50-10.30.0.100"
+clusterLoadBalancerIpRange: ""
 
 cilium:
   ipam:
