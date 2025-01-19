@@ -1,4 +1,0 @@
-.terraform*
-secrets/*.yaml
-!secrets/*.enc.yaml
-outputs/*
