@@ -10,9 +10,9 @@ general:
   image_tag: latest
   podDistribution: cluster # can be "spread" or "cluster"
   #UID to run the process with
-  puid: 0
+  puid: 1002
   # GID to run the process with
-  pgid: 0
+  pgid: 1000
   # Persistent storage selections and pathing
   storage:
     customVolume: false # set to true if not using a PVC (must provide volume below)
@@ -100,14 +100,6 @@ radarr:
     requests:
       cpu: "100m"
       memory: "2Gi"
-  volume:
-    name: pvc-radarr-config
-    storageClassName: mayastor-sc
-    annotations: {}
-    labels: {}
-    accessModes: ReadWriteOnce
-    storage: 5Gi
-    selector: {}
 
 jackett:
   enabled: false
@@ -136,14 +128,6 @@ jackett:
     requests:
       cpu: "100m"
       memory: "2Gi"
-  volume:
-    name: pvc-jackett-config
-    storageClassName: mayastor-sc
-    annotations: {}
-    labels: {}
-    accessModes: ReadWriteOnce
-    storage: 5Gi
-    selector: {}
 
 transmission:
   enabled: true
@@ -190,14 +174,6 @@ transmission:
     requests:
       cpu: "100m"
       memory: "2Gi"
-  volume:
-    name: pvc-transmission-config
-    storageClassName: mayastor-sc
-    annotations: {}
-    labels: {}
-    accessModes: ReadWriteOnce
-    storage: 5Gi
-    selector: {}
 
 sabnzbd:
   enabled: true
@@ -236,14 +212,6 @@ sabnzbd:
     requests:
       cpu: "100m"
       memory: "2Gi"
-  volume:
-    name: pvc-sabnzbd-config
-    storageClassName: mayastor-sc
-    annotations: {}
-    labels: {}
-    accessModes: ReadWriteOnce
-    storage: 5Gi
-    selector: {}
 
 prowlarr:
   enabled: true
@@ -272,14 +240,6 @@ prowlarr:
     requests:
       cpu: "100m"
       memory: "2Gi"
-  volume:
-    name: pvc-prowlarr-config
-    storageClassName: mayastor-sc
-    annotations: {}
-    labels: {}
-    accessModes: ReadWriteOnce
-    storage: 5Gi
-    selector: {}
 
 plex:
   enabled: true
@@ -309,14 +269,6 @@ plex:
     requests:
       cpu: "100m"
       memory: "2Gi"
-  volume:
-    name: pvc-plex-config
-    storageClassName: mayastor-sc
-    annotations: {}
-    labels: {}
-    accessModes: ReadWriteOnce
-    storage: 5Gi
-    selector: {}
 
 jellyfin:
   enabled: false
@@ -344,14 +296,6 @@ jellyfin:
     requests:
       cpu: "100m"
       memory: "2Gi"
-  volume:
-    name: pvc-jellyfin-config
-    storageClassName: mayastor-sc
-    annotations: {}
-    labels: {}
-    accessModes: ReadWriteOnce
-    storage: 5Gi
-    selector: {}
 
 mediafusion:
   enabled: true
