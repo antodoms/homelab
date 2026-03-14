@@ -27,7 +27,7 @@ spec:
     backendRefs:
     - group: ""
       kind: Service
-      name: {{ .Release.Name }}-openobserve-router
+      name: {{ .Release.Name }}-router
       port: 5080
       weight: 1
 {{- end }}

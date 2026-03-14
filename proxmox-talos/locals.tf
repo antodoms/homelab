@@ -7,7 +7,7 @@ locals {
         node_cpu_cores = local.master_nodes[id].cpu
         node_memory = local.master_nodes[id].mem
         node_ipconfig = "ip=${local.master_nodes[id].address}/24,gw=${local.gateway_ip}"
-        node_disk = "100"
+        node_disk = "200"
         node = local.master_nodes[id].node
     }
   }
@@ -24,8 +24,8 @@ locals {
         node_cpu_cores = local.worker_nodes[id].cpu
         node_memory = local.worker_nodes[id].mem
         node_ipconfig = "ip=${local.worker_nodes[id].address}/24,gw=${local.gateway_ip}"
-        node_disk            = "100"
-        additional_node_disk = "200" # for mayastor
+        node_disk            = "200"
+        additional_node_disk = "500" # for mayastor
         node = local.worker_nodes[id].node
     }
   }

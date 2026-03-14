@@ -30,7 +30,7 @@ openobserve:
       storageClass: "mayastor-sc"
   
   querier:
-    persistence:
+    persistence: # If enabled it will be used for disk cache. Highly recommend to enable this for production
       size: 20Gi
       storageClass: "mayastor-sc"
   
