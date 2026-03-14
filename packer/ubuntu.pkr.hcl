@@ -1,13 +1,4 @@
-packer {
-  required_plugins {
-    proxmox = {
-      version = ">= 1.0.1"
-      source  = "github.com/hashicorp/proxmox"
-    }
-  }
-}
-
-source "proxmox" "talos" {
+source "proxmox" "ubuntu2204" {
   proxmox_url              = var.proxmox_url
   username                 = var.proxmox_username
   password                 = var.proxmox_password
@@ -38,24 +29,26 @@ source "proxmox" "talos" {
   ssh_timeout  = "15m"
   qemu_agent   = true
 
-  template_name        = "talos-${var.talos_version}-cloud-init-template"
-  template_description = "Talos ${var.talos_version} cloud-init, built on ${formatdate("YYYY-MM-DD hh:mm:ss ZZZ", timestamp())}"
+  template_name        = "ubuntu2204-cloud-init-template"
+  template_description = "Ubuntu 22.04 cloud-init, built on ${formatdate("YYYY-MM-DD hh:mm:ss ZZZ", timestamp())}"
 
   boot_wait = "25s"
   boot_command = [
-    "<enter><wait1m>",
-    "passwd<enter><wait>packer<enter><wait>packer<enter>"
+    "<enter><enter><f6><esc><wait>",
+    "<bs><bs><bs><bs>",
+    "autoinstall ds=nocloud-net;s=http://{{ .HTTPIP }}:{{ .HTTPPort }}/ ",
+    "--- <enter>"
   ]
 }
 
 build {
   name    = "release"
-  sources = ["source.proxmox.talos"]
+  sources = ["source.proxmox.ubuntu2204"]
 
   provisioner "shell" {
     inline = [
-      "curl -L ${local.image} -o /tmp/talos.raw.xz",
-      "xz -d -c /tmp/talos.raw.xz | dd of=/dev/sda && sync",
+      "curl -L ${local.ubuntu_image} -o /tmp/ubuntu.raw.xz",
+      "xz -d -c /tmp/ubuntu.raw.xz | dd of=/dev/sda && sync",
     ]
   }
 }
