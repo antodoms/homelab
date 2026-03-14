@@ -6,7 +6,9 @@ metadata:
   annotations:
     # MetalLB configuration
     metallb.universe.tf/address-pool: default
-    metallb.universe.tf/loadBalancerIPs: {{ .Values.gateway.loadBalancerIP | default "" }}
+    {{- if .Values.gateway.loadBalancerIP }}
+    metallb.universe.tf/loadBalancerIPs: {{ .Values.gateway.loadBalancerIP | quote }}
+    {{- end }}
 spec:
   gatewayClassName: homelab-gateway
   listeners:

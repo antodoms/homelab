@@ -26,9 +26,20 @@ spec:
   destination:
     server: {{ .Values.destinationServer | default "https://kubernetes.default.svc" }}
     namespace: docker-registry
+  ignoreDifferences:
+    - group: ""
+      kind: Secret
+      jsonPointers:
+        - /data
+    - group: apps
+      kind: Deployment
+      jsonPointers:
+        - /spec/template/metadata/annotations/checksum~1secret
   syncPolicy:
     syncOptions:
+      - RespectIgnoreDifferences=true
       - CreateNamespace={{ .Values.dockerRegistry.createNamespace }}
+      - ServerSideApply=true
     automated:
       selfHeal: true
       prune: true

@@ -61,7 +61,9 @@ sonarr:
     enabled: true
     annotations: {}
     parentRefs:
-    - name: homelab-gateway
+    - group: gateway.networking.k8s.io
+      kind: Gateway
+      name: homelab-gateway
       namespace: envoy-gateway-system
       sectionName: https
     hostnames:
@@ -72,8 +74,11 @@ sonarr:
           type: PathPrefix
           value: /sonarr
       backendRefs:
-      - name: sonarr
+      - group: ""
+        kind: Service
+        name: sonarr
         port: 8989
+        weight: 1
   resources:
     limits:
       cpu: "200m"
@@ -114,7 +119,9 @@ radarr:
     enabled: true
     annotations: {}
     parentRefs:
-    - name: homelab-gateway
+    - group: gateway.networking.k8s.io
+      kind: Gateway
+      name: homelab-gateway
       namespace: envoy-gateway-system
       sectionName: https
     hostnames:
@@ -125,8 +132,11 @@ radarr:
           type: PathPrefix
           value: /radarr
       backendRefs:
-      - name: radarr
+      - group: ""
+        kind: Service
+        name: radarr
         port: 7878
+        weight: 1
   resources:
     limits:
       cpu: "200m"
@@ -159,7 +169,9 @@ jackett:
     enabled: true
     annotations: {}
     parentRefs:
-    - name: homelab-gateway
+    - group: gateway.networking.k8s.io
+      kind: Gateway
+      name: homelab-gateway
       namespace: envoy-gateway-system
       sectionName: https
     hostnames:
@@ -170,8 +182,11 @@ jackett:
           type: PathPrefix
           value: /jackett
       backendRefs:
-      - name: jackett
+      - group: ""
+        kind: Service
+        name: jackett
         port: 9117
+        weight: 1
   resources:
     limits:
       cpu: "200m"
@@ -217,7 +232,9 @@ transmission:
     enabled: true
     annotations: {}
     parentRefs:
-    - name: homelab-gateway
+    - group: gateway.networking.k8s.io
+      kind: Gateway
+      name: homelab-gateway
       namespace: envoy-gateway-system
       sectionName: https
     hostnames:
@@ -228,8 +245,11 @@ transmission:
           type: PathPrefix
           value: /transmission
       backendRefs:
-      - name: transmission
+      - group: ""
+        kind: Service
+        name: transmission
         port: 9091
+        weight: 1
   config:
     auth:
       enabled: false
@@ -277,7 +297,9 @@ sabnzbd:
     enabled: true
     annotations: {}
     parentRefs:
-    - name: homelab-gateway
+    - group: gateway.networking.k8s.io
+      kind: Gateway
+      name: homelab-gateway
       namespace: envoy-gateway-system
       sectionName: https
     hostnames:
@@ -288,8 +310,11 @@ sabnzbd:
           type: PathPrefix
           value: /sabnzbd
       backendRefs:
-      - name: sabnzbd
+      - group: ""
+        kind: Service
+        name: sabnzbd
         port: 8080
+        weight: 1
   resources:
     limits:
       cpu: "200m"
@@ -322,7 +347,9 @@ prowlarr:
     enabled: true
     annotations: {}
     parentRefs:
-    - name: homelab-gateway
+    - group: gateway.networking.k8s.io
+      kind: Gateway
+      name: homelab-gateway
       namespace: envoy-gateway-system
       sectionName: https
     hostnames:
@@ -333,8 +360,11 @@ prowlarr:
           type: PathPrefix
           value: /prowlarr
       backendRefs:
-      - name: prowlarr
+      - group: ""
+        kind: Service
+        name: prowlarr
         port: 9696
+        weight: 1
   resources:
     limits:
       cpu: "200m"
@@ -368,7 +398,9 @@ plex:
     enabled: true
     annotations: {}
     parentRefs:
-    - name: homelab-gateway
+    - group: gateway.networking.k8s.io
+      kind: Gateway
+      name: homelab-gateway
       namespace: envoy-gateway-system
       sectionName: https
     hostnames:
@@ -379,8 +411,11 @@ plex:
           type: PathPrefix
           value: /
       backendRefs:
-      - name: plex
+      - group: ""
+        kind: Service
+        name: plex
         port: 32400
+        weight: 1
   resources:
     limits:
       cpu: "200m"
@@ -412,7 +447,9 @@ jellyfin:
     enabled: true
     annotations: {}
     parentRefs:
-    - name: homelab-gateway
+    - group: gateway.networking.k8s.io
+      kind: Gateway
+      name: homelab-gateway
       namespace: envoy-gateway-system
       sectionName: https
     hostnames:
@@ -423,8 +460,11 @@ jellyfin:
           type: PathPrefix
           value: /
       backendRefs:
-      - name: jellyfin
+      - group: ""
+        kind: Service
+        name: jellyfin
         port: 8096
+        weight: 1
   resources:
     limits:
       cpu: "200m"
@@ -456,7 +496,9 @@ mediafusion:
     enabled: true
     annotations: {}
     parentRefs:
-    - name: homelab-gateway
+    - group: gateway.networking.k8s.io
+      kind: Gateway
+      name: homelab-gateway
       namespace: envoy-gateway-system
       sectionName: https
     hostnames:
@@ -467,8 +509,11 @@ mediafusion:
           type: PathPrefix
           value: /
       backendRefs:
-      - name: mediafusion-svc
+      - group: ""
+        kind: Service
+        name: mediafusion-svc
         port: 8000
+        weight: 1
   resources:
     requests:
       memory: "500Mi"

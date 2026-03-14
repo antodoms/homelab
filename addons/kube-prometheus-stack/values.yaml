@@ -52,7 +52,9 @@ kube-prometheus-stack:
         namespace: "{{ .Release.Namespace }}"
       spec:
         parentRefs:
-        - name: homelab-gateway
+        - group: gateway.networking.k8s.io
+          kind: Gateway
+          name: homelab-gateway
           namespace: envoy-gateway-system
           sectionName: https
         hostnames:
@@ -63,8 +65,11 @@ kube-prometheus-stack:
               type: PathPrefix
               value: /
           backendRefs:
-          - name: "{{ .Release.Name }}-grafana"
+          - group: ""
+            kind: Service
+            name: "{{ .Release.Name }}-grafana"
             port: 80
+            weight: 1
     grafana.ini:
       server:
         root_url: ""

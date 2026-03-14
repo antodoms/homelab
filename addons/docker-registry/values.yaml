@@ -21,7 +21,9 @@ docker-registry:
     enabled: true
     annotations: {}
     parentRefs:
-    - name: homelab-gateway
+    - group: gateway.networking.k8s.io
+      kind: Gateway
+      name: homelab-gateway
       namespace: envoy-gateway-system
       sectionName: https
     hostnames:

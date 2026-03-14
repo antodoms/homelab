@@ -30,12 +30,23 @@ spec:
   destination:
     server: {{ .Values.destinationServer | default "https://kubernetes.default.svc" }}
     namespace: kube-prometheus-stack
+  ignoreDifferences:
+    - group: "*"
+      kind: "*"
+      managedFieldsManagers:
+        - argocd-controller
+        - argocd-application-controller
+      jsonPointers:
+        - /metadata/annotations
+        - /metadata/managedFields
+        - /metadata/labels
   syncPolicy:
     managedNamespaceMetadata:
       labels:
         pod-security.kubernetes.io/enforce: privileged
         pod-security.kubernetes.io/enforce-version: latest
     syncOptions:
+    - RespectIgnoreDifferences=true
     - CreateNamespace={{ .Values.kubePrometheusStack.createNamespace }}
     - ServerSideApply=true
     automated:

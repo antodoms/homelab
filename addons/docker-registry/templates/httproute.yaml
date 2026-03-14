@@ -23,6 +23,9 @@ spec:
         type: PathPrefix
         value: /
     backendRefs:
-    - name: docker-registry
+    - group: ""
+      kind: Service
+      name: docker-registry
       port: 5000
+      weight: 1
 {{- end }}

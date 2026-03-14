@@ -52,7 +52,20 @@ spec:
   destination:
     server: {{ .Values.destinationServer | default "https://kubernetes.default.svc" }}
     namespace: cert-manager
+  ignoreDifferences:
+    - group: "*"
+      kind: "*"
+      managedFieldsManagers:
+        - argocd-controller
+        - argocd-application-controller
+      jsonPointers:
+        - /metadata/annotations
+        - /metadata/managedFields
+        - /metadata/labels
   syncPolicy:
+    syncOptions:
+      - RespectIgnoreDifferences=true
+      - ServerSideApply=true
     automated:
       selfHeal: true
       prune: true
