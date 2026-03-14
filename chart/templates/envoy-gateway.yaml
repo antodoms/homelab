@@ -14,6 +14,7 @@ spec:
     targetRevision: {{ .Values.targetRevision }}
     helm:
       values: |
+        ingressDomain: {{ .Values.ingressDomain }}
         gateway-helm:
         {{- toYaml .Values.envoyGateway | nindent 10 }}
   destination:
@@ -24,13 +25,14 @@ spec:
       - RespectIgnoreDifferences=true
       - CreateNamespace={{ .Values.envoyGateway.createNamespace }}
       - ServerSideApply=true
+      - SkipDryRunOnMissingResource=true
     automated:
       selfHeal: true
       prune: true
     retry:
-      limit: 1
+      limit: 5
       backoff:
         duration: 5s
         factor: 2
-        maxDuration: 1m
+        maxDuration: 3m
 {{- end -}}

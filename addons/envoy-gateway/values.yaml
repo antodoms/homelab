@@ -1,4 +1,9 @@
 gateway-helm:
+  certgen:
+    job:
+      annotations:
+        argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
+      ttlSecondsAfterFinished: 300
   config:
     envoyGateway:
       gateway:
@@ -18,6 +23,9 @@ gateway-helm:
       - name: ratelimit
         port: 18001
         targetPort: 18001
+
+# Ingress domain for TLS certificate
+ingressDomain: "homelab.home"
 
 # Gateway configuration
 gateway:

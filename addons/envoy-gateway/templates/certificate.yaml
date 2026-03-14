@@ -11,7 +11,7 @@ spec:
     name: selfsigned
     kind: ClusterIssuer
     group: cert-manager.io
-  commonName: "*.homelab.home"
+  commonName: "*.{{ .Values.ingressDomain }}"
   dnsNames:
-  - "*.homelab.home"
-  - "homelab.home"
+  - "*.{{ .Values.ingressDomain }}"
+  - "{{ .Values.ingressDomain }}"
