@@ -1,0 +1,20 @@
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: EnvoyProxy
+metadata:
+  name: homelab-gateway-proxy
+  namespace: envoy-gateway-system
+spec:
+  provider:
+    type: Kubernetes
+    kubernetes:
+      envoyService:
+        type: LoadBalancer
+        annotations:
+          # MetalLB configuration
+          metallb.universe.tf/address-pool: default
+          {{- if .Values.gateway.loadBalancerIP }}
+          metallb.universe.tf/loadBalancerIPs: {{ .Values.gateway.loadBalancerIP }}
+          {{- end }}
+        externalTrafficPolicy: Local
+        # Optional: Preserve client source IP
+        allocateLoadBalancerNodePorts: true

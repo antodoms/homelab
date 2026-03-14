@@ -42,18 +42,30 @@ kube-prometheus-stack:
       create: true
     createNamespace: true
     ingress:
-      enabled: true
-      ingressClassName: nginx
-      annotations:
-        cert-manager.io/cluster-issuer: selfsigned
-        kubernetes.io/ingress.class: nginx
-        nginx.ingress.kubernetes.io/ssl-redirect: "true"
-        nginx.ingress.kubernetes.io/proxy-ssl-verify: "false"
-        nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
-      tls:
-        - secretName: grafana-general-tls
-          hosts:
-            - grafana.homelab.home
+      enabled: false
+      # Migrated to Gateway API - see templates/grafana-httproute.yaml
+    extraObjects:
+    - apiVersion: gateway.networking.k8s.io/v1
+      kind: HTTPRoute
+      metadata:
+        name: grafana
+        namespace: "{{ .Release.Namespace }}"
+        annotations:
+          cert-manager.io/cluster-issuer: selfsigned
+      spec:
+        parentRefs:
+        - name: homelab-gateway
+          namespace: envoy-gateway-system
+        hostnames:
+        - grafana.homelab.home
+        rules:
+        - matches:
+          - path:
+              type: PathPrefix
+              value: /
+          backendRefs:
+          - name: "{{ .Release.Name }}-grafana"
+            port: 80
     grafana.ini:
       server:
         root_url: ""

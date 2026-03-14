@@ -1,6 +1,9 @@
 apiVersion: v2
-name: registry
-description: A Helm chart for installing registry
+name: envoy-gateway
+description: A Helm chart for Envoy Gateway
+
+# Application charts are a collection of templates that can be packaged into versioned archives
+# to be deployed.
 type: application
 
 # The chart version. This version number should be incremented each time you make changes
@@ -9,9 +12,9 @@ version: 0.1.0
 
 # Version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application.
-appVersion: "1.0"
+appVersion: "1.2.0"
 
 dependencies:
-- name: docker-registry
-  version: 2.2.3
-  repository: https://twuni.github.io/docker-registry.helm
+- name: gateway-helm
+  version: v1.2.0
+  repository: oci://docker.io/envoyproxy

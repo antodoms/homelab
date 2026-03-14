@@ -1,0 +1,27 @@
+gateway-helm:
+  config:
+    envoyGateway:
+      gateway:
+        controllerName: gateway.envoyproxy.io/gatewayclass-controller
+      provider:
+        type: Kubernetes
+        kubernetes:
+          shutdownManager:
+            image: envoyproxy/gateway-dev:latest
+  deployment:
+    envoyGateway:
+      replicas: 1
+    ports:
+      - name: grpc
+        port: 18000
+        targetPort: 18000
+      - name: ratelimit
+        port: 18001
+        targetPort: 18001
+
+# Gateway configuration
+gateway:
+  # Optional: Specify a specific IP from MetalLB pool
+  # Leave empty for automatic assignment from the pool
+  loadBalancerIP: ""
+  # Example: loadBalancerIP: "10.30.0.101"

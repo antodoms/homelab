@@ -35,8 +35,14 @@ metallb:
   enable: true
   addressPool: ""
 
-# Nginx Values
+# Ingress Controller Values
+# Nginx has been replaced with Envoy Gateway due to licensing changes
 ingressNginx:
+  enable: false
+  createNamespace: true
+
+# Envoy Gateway (Gateway API)
+envoyGateway:
   enable: true
   createNamespace: true
 

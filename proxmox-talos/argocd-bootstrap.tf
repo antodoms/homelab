@@ -27,5 +27,8 @@ resource "kubectl_manifest" "bootstrap" {
 
   yaml_body = each.value
 
-  depends_on = [talos_machine_configuration_apply.controller]
+  depends_on = [
+    talos_machine_bootstrap.this,
+    data.talos_cluster_kubeconfig.this
+  ]
 }

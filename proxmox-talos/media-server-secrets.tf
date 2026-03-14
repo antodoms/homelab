@@ -17,6 +17,11 @@ resource "kubernetes_namespace" "media-center-operator" {
   metadata {
     name = "media-server-operator"
   }
+
+  depends_on = [
+    talos_machine_bootstrap.this,
+    data.talos_cluster_kubeconfig.this
+  ]
 }
 
 resource "kubernetes_secret" "prowlarr_secrets" {

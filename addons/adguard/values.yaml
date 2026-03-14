@@ -81,8 +81,6 @@ podSecurityContext: {}
 ingress:
   enabled: true
   annotations:
-    kubernetes.io/ingress.class: nginx
-    kubernetes.io/tls-acme: "true"
     cert-manager.io/cluster-issuer: selfsigned
   hosts:
     - host: adguard.homelab.home
