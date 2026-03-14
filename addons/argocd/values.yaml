@@ -24,6 +24,13 @@ argo-cd:
     params:
       server.insecure: true
       server.enable.proxy.extension: "true"
+      controller.status.processors: "20"
+      controller.operation.processors: "10"
+      controller.repo.server.timeout.seconds: "180"
+      controller.self.heal.timeout.seconds: "5"
+      timeout.reconciliation: "180"
+      helm.valuesFileSchemes: >-
+        secrets
 
   dex:
     enabled: false
@@ -44,8 +51,6 @@ argo-cd:
         annotations:
           meta.helm.sh/release-name: argo-cd
           meta.helm.sh/release-namespace: argocd
-      applicationLabels:
-        enabled: true
       serviceMonitor:
         enabled: true
         annotations:
@@ -53,18 +58,6 @@ argo-cd:
           meta.helm.sh/release-namespace: argocd
 
   controller:
-    args:
-      # -- define the application controller `--status-processors`
-      statusProcessors: "20"
-      # -- define the application controller `--operation-processors`
-      operationProcessors: "10"
-      # -- define the application controller `--app-resync`
-      appResyncPeriod: "180"
-      # -- define the application controller `--self-heal-timeout-seconds`
-      selfHealTimeout: "5"
-      # -- define the application controller `--repo-server-timeout-seconds`
-      repoServerTimeoutSeconds: "180"
-
     metrics:
       enabled: true
       service:
@@ -144,8 +137,6 @@ argo-cd:
         annotations:
           meta.helm.sh/release-name: argo-cd
           meta.helm.sh/release-namespace: argocd
-      applicationLabels:
-        enabled: true
       serviceMonitor:
         enabled: true
         annotations:
@@ -153,14 +144,9 @@ argo-cd:
           meta.helm.sh/release-namespace: argocd
 
   server:
-    extraArgs:
-      - --insecure
     autoscaling:
       enabled: true
       maxReplicas: 3
-    config:
-      helm.valuesFileSchemes: >-
-        secrets
     pdb:
       enabled: true
       maxUnavailable: 1
@@ -179,8 +165,6 @@ argo-cd:
         annotations:
           meta.helm.sh/release-name: argo-cd
           meta.helm.sh/release-namespace: argocd
-      applicationLabels:
-        enabled: true
       serviceMonitor:
         enabled: true
         annotations:
@@ -222,8 +206,6 @@ argo-cd:
         annotations:
           meta.helm.sh/release-name: argo-cd
           meta.helm.sh/release-namespace: argocd
-      applicationLabels:
-        enabled: true
       serviceMonitor:
         enabled: true
         annotations:
