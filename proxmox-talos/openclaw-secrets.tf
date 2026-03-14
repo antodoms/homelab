@@ -27,7 +27,7 @@ resource "kubernetes_secret" "openclaw_api_keys" {
   data = {
     TELEGRAM_BOT_TOKEN   = data.sops_file.secrets.data["openclaw_telegram_bot_token"]
     ANTHROPIC_API_KEY    = data.sops_file.secrets.data["openclaw_anthropic_api_key"]
-    BRAVE_SEARCH_API_KEY = data.sops_file.secrets.data["openclaw_brave_search_api_key"]
+    BRAVE_API_KEY        = data.sops_file.secrets.data["openclaw_brave_search_api_key"]
   }
 
   type = "Opaque"
