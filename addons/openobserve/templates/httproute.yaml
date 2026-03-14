@@ -1,0 +1,33 @@
+{{- if .Values.httproute.enabled -}}
+{{- $fullName := include "openobserve.fullname" . -}}
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: {{ $fullName }}
+  labels:
+    {{- include "openobserve.labels" . | nindent 4 }}
+  {{- with .Values.httproute.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  {{- with .Values.httproute.parentRefs }}
+  parentRefs:
+    {{- toYaml . | nindent 2 }}
+  {{- end }}
+  {{- with .Values.httproute.hostnames }}
+  hostnames:
+    {{- toYaml . | nindent 2 }}
+  {{- end }}
+  rules:
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /
+    backendRefs:
+    - group: ""
+      kind: Service
+      name: {{ .Release.Name }}-openobserve-router
+      port: 5080
+      weight: 1
+{{- end }}

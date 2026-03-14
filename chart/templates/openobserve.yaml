@@ -1,0 +1,46 @@
+{{- if and (.Values.openobserve) (.Values.openobserve.enable) -}}
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: openobserve
+  namespace: {{ .Values.argoNamespace | default "argocd" }}
+  finalizers:
+  - resources-finalizer.argocd.argoproj.io
+spec:
+  project: {{ .Values.argoProject | default "default" }}
+  source:
+    repoURL: {{ .Values.repoUrl }}
+    path: addons/openobserve
+    targetRevision: {{ .Values.targetRevision }}
+    helm:
+      values: |
+        openobserve:
+        {{- toYaml .Values.openobserve | nindent 10 }}
+  destination:
+    server: {{ .Values.destinationServer | default "https://kubernetes.default.svc" }}
+    namespace: openobserve
+  ignoreDifferences:
+    - group: "*"
+      kind: "*"
+      managedFieldsManagers:
+        - argocd-controller
+        - argocd-application-controller
+      jsonPointers:
+        - /metadata/annotations
+        - /metadata/managedFields
+        - /metadata/labels
+  syncPolicy:
+    syncOptions:
+    - RespectIgnoreDifferences=true
+    - CreateNamespace={{ .Values.openobserve.createNamespace }}
+    - ServerSideApply=true
+    automated:
+      selfHeal: true
+      prune: true
+    retry:
+      limit: 1
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 1m
+{{- end -}}

@@ -1,0 +1,51 @@
+openobserve:
+  auth:
+    ZO_ROOT_USER_EMAIL: "admin@homelab.home"
+    ZO_ROOT_USER_PASSWORD: "changeme"
+
+  config:
+    ZO_LOCAL_MODE: "true"
+    ZO_LOCAL_MODE_STORAGE: "disk"
+
+  ingress:
+    enabled: false
+    # Migrated to Gateway API - see templates/httproute.yaml
+
+  # Single replica for homelab
+  replicaCount:
+    ingester: 1
+    querier: 1
+    router: 1
+    alertmanager: 0
+    alertquerier: 0
+    compactor: 1
+    zplane: 0
+    reportserver: 0
+    actions: 0
+    sreagent: 0
+
+  ingester:
+    persistence:
+      enabled: true
+      size: 50Gi
+      storageClass: "mayastor-sc"
+      accessModes:
+        - ReadWriteOnce
+
+  # Disable etcd and minio for local mode
+  etcd:
+    enabled: false
+  minio:
+    enabled: false
+
+httproute:
+  enabled: true
+  annotations: {}
+  parentRefs:
+    - group: gateway.networking.k8s.io
+      kind: Gateway
+      name: homelab-gateway
+      namespace: envoy-gateway-system
+      sectionName: https
+  hostnames:
+    - openobserve.homelab.home
