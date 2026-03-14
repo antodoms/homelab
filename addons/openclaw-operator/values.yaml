@@ -1,0 +1,22 @@
+openclaw-operator:
+  replicaCount: 1
+
+  resources:
+    limits:
+      cpu: 500m
+      memory: 256Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+httproute:
+  enabled: true
+  annotations: {}
+  parentRefs:
+  - group: gateway.networking.k8s.io
+    kind: Gateway
+    name: homelab-gateway
+    namespace: envoy-gateway-system
+    sectionName: https
+  hostnames:
+  - openclaw.homelab.home

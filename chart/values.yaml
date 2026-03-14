@@ -82,3 +82,8 @@ kubeshark:
 dockerRegistry:
   enable: true
   createNamespace: true
+
+# OpenClaw Operator
+openclawOperator:
+  enable: true
+  createNamespace: false # namespace is created by terraform
