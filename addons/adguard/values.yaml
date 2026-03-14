@@ -79,15 +79,19 @@ podSecurityContext: {}
   # fsGroup: 2000
 
 ingress:
-  enabled: true
-  annotations:
-    cert-manager.io/cluster-issuer: selfsigned
+  enabled: false
   hosts:
     - host: adguard.homelab.home
-  tls:
-  - secretName: adguard-tls
-    hosts:
-      - adguard.homelab.home
+
+httproute:
+  enabled: true
+  annotations: {}
+  parentRefs:
+  - name: homelab-gateway
+    namespace: envoy-gateway-system
+    sectionName: https
+  hostnames:
+  - adguard.homelab.home
 
 podMonitor:
   enabled: false

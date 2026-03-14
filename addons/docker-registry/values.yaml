@@ -15,7 +15,14 @@ docker-registry:
     size: 30Gi
     storageClass: mayastor-sc
   ingress:
+    enabled: false
+  # Gateway API HTTPRoute (replaces ingress)
+  httproute:
     enabled: true
-    annotations:
-      cert-manager.io/cluster-issuer: selfsigned
-      nginx.ingress.kubernetes.io/proxy-body-size: "1000m"  # Adjust size as needed
+    annotations: {}
+    parentRefs:
+    - name: homelab-gateway
+      namespace: envoy-gateway-system
+      sectionName: https
+    hostnames:
+    - registry.homelab.home

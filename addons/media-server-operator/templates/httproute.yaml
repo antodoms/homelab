@@ -1,0 +1,251 @@
+{{ if .Values.sonarr.httproute.enabled }}
+{{ if .Values.sonarr.enabled }}
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: sonarr
+  labels:
+    {{- include "k8s-mediaserver.labels" . | nindent 4 }}
+  {{- with .Values.sonarr.httproute.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  {{- with .Values.sonarr.httproute.parentRefs }}
+  parentRefs:
+    {{- toYaml . | nindent 2 }}
+  {{- end }}
+  {{- with .Values.sonarr.httproute.hostnames }}
+  hostnames:
+    {{- toYaml . | nindent 2 }}
+  {{- end }}
+  {{- with .Values.sonarr.httproute.rules }}
+  rules:
+    {{- toYaml . | nindent 2 }}
+  {{- end }}
+{{ end }}
+{{ end }}
+---
+{{ if .Values.radarr.httproute.enabled }}
+{{ if .Values.radarr.enabled }}
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: radarr
+  labels:
+    {{- include "k8s-mediaserver.labels" . | nindent 4 }}
+  {{- with .Values.radarr.httproute.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  {{- with .Values.radarr.httproute.parentRefs }}
+  parentRefs:
+    {{- toYaml . | nindent 2 }}
+  {{- end }}
+  {{- with .Values.radarr.httproute.hostnames }}
+  hostnames:
+    {{- toYaml . | nindent 2 }}
+  {{- end }}
+  {{- with .Values.radarr.httproute.rules }}
+  rules:
+    {{- toYaml . | nindent 2 }}
+  {{- end }}
+{{ end }}
+{{ end }}
+---
+{{ if .Values.transmission.httproute.enabled }}
+{{ if .Values.transmission.enabled }}
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: transmission
+  labels:
+    {{- include "k8s-mediaserver.labels" . | nindent 4 }}
+  {{- with .Values.transmission.httproute.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  {{- with .Values.transmission.httproute.parentRefs }}
+  parentRefs:
+    {{- toYaml . | nindent 2 }}
+  {{- end }}
+  {{- with .Values.transmission.httproute.hostnames }}
+  hostnames:
+    {{- toYaml . | nindent 2 }}
+  {{- end }}
+  {{- with .Values.transmission.httproute.rules }}
+  rules:
+    {{- toYaml . | nindent 2 }}
+  {{- end }}
+{{ end }}
+{{ end }}
+---
+{{ if .Values.sabnzbd.httproute.enabled }}
+{{ if .Values.sabnzbd.enabled }}
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: sabnzbd
+  labels:
+    {{- include "k8s-mediaserver.labels" . | nindent 4 }}
+  {{- with .Values.sabnzbd.httproute.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  {{- with .Values.sabnzbd.httproute.parentRefs }}
+  parentRefs:
+    {{- toYaml . | nindent 2 }}
+  {{- end }}
+  {{- with .Values.sabnzbd.httproute.hostnames }}
+  hostnames:
+    {{- toYaml . | nindent 2 }}
+  {{- end }}
+  {{- with .Values.sabnzbd.httproute.rules }}
+  rules:
+    {{- toYaml . | nindent 2 }}
+  {{- end }}
+{{ end }}
+{{ end }}
+---
+{{ if .Values.prowlarr.httproute.enabled }}
+{{ if .Values.prowlarr.enabled }}
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: prowlarr
+  labels:
+    {{- include "k8s-mediaserver.labels" . | nindent 4 }}
+  {{- with .Values.prowlarr.httproute.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  {{- with .Values.prowlarr.httproute.parentRefs }}
+  parentRefs:
+    {{- toYaml . | nindent 2 }}
+  {{- end }}
+  {{- with .Values.prowlarr.httproute.hostnames }}
+  hostnames:
+    {{- toYaml . | nindent 2 }}
+  {{- end }}
+  {{- with .Values.prowlarr.httproute.rules }}
+  rules:
+    {{- toYaml . | nindent 2 }}
+  {{- end }}
+{{ end }}
+{{ end }}
+---
+{{ if .Values.plex.httproute.enabled }}
+{{ if .Values.plex.enabled }}
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: plex
+  labels:
+    {{- include "k8s-mediaserver.labels" . | nindent 4 }}
+  {{- with .Values.plex.httproute.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  {{- with .Values.plex.httproute.parentRefs }}
+  parentRefs:
+    {{- toYaml . | nindent 2 }}
+  {{- end }}
+  {{- with .Values.plex.httproute.hostnames }}
+  hostnames:
+    {{- toYaml . | nindent 2 }}
+  {{- end }}
+  {{- with .Values.plex.httproute.rules }}
+  rules:
+    {{- toYaml . | nindent 2 }}
+  {{- end }}
+{{ end }}
+{{ end }}
+---
+{{ if .Values.jellyfin.httproute.enabled }}
+{{ if .Values.jellyfin.enabled }}
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: jellyfin
+  labels:
+    {{- include "k8s-mediaserver.labels" . | nindent 4 }}
+  {{- with .Values.jellyfin.httproute.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  {{- with .Values.jellyfin.httproute.parentRefs }}
+  parentRefs:
+    {{- toYaml . | nindent 2 }}
+  {{- end }}
+  {{- with .Values.jellyfin.httproute.hostnames }}
+  hostnames:
+    {{- toYaml . | nindent 2 }}
+  {{- end }}
+  {{- with .Values.jellyfin.httproute.rules }}
+  rules:
+    {{- toYaml . | nindent 2 }}
+  {{- end }}
+{{ end }}
+{{ end }}
+---
+{{ if .Values.mediafusion.httproute.enabled }}
+{{ if .Values.mediafusion.enabled }}
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: mediafusion
+  labels:
+    {{- include "k8s-mediaserver.labels" . | nindent 4 }}
+  {{- with .Values.mediafusion.httproute.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  {{- with .Values.mediafusion.httproute.parentRefs }}
+  parentRefs:
+    {{- toYaml . | nindent 2 }}
+  {{- end }}
+  {{- with .Values.mediafusion.httproute.hostnames }}
+  hostnames:
+    {{- toYaml . | nindent 2 }}
+  {{- end }}
+  {{- with .Values.mediafusion.httproute.rules }}
+  rules:
+    {{- toYaml . | nindent 2 }}
+  {{- end }}
+{{ end }}
+{{ end }}
+---
+{{ if .Values.jackett.httproute.enabled }}
+{{ if .Values.jackett.enabled }}
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: jackett
+  labels:
+    {{- include "k8s-mediaserver.labels" . | nindent 4 }}
+  {{- with .Values.jackett.httproute.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  {{- with .Values.jackett.httproute.parentRefs }}
+  parentRefs:
+    {{- toYaml . | nindent 2 }}
+  {{- end }}
+  {{- with .Values.jackett.httproute.hostnames }}
+  hostnames:
+    {{- toYaml . | nindent 2 }}
+  {{- end }}
+  {{- with .Values.jackett.httproute.rules }}
+  rules:
+    {{- toYaml . | nindent 2 }}
+  {{- end }}
+{{ end }}
+{{ end }}

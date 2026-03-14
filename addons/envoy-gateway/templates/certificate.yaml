@@ -1,0 +1,17 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: homelab-gateway-tls
+  namespace: envoy-gateway-system
+spec:
+  secretName: homelab-gateway-tls
+  duration: 4320h # 180 days
+  renewBefore: 720h # 30 days
+  issuerRef:
+    name: selfsigned
+    kind: ClusterIssuer
+    group: cert-manager.io
+  commonName: "*.homelab.home"
+  dnsNames:
+  - "*.homelab.home"
+  - "homelab.home"

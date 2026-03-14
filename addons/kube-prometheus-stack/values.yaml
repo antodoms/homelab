@@ -50,12 +50,11 @@ kube-prometheus-stack:
       metadata:
         name: grafana
         namespace: "{{ .Release.Namespace }}"
-        annotations:
-          cert-manager.io/cluster-issuer: selfsigned
       spec:
         parentRefs:
         - name: homelab-gateway
           namespace: envoy-gateway-system
+          sectionName: https
         hostnames:
         - grafana.homelab.home
         rules:

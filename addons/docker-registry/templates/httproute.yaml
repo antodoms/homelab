@@ -1,0 +1,28 @@
+{{- if (index .Values "docker-registry" "httproute" "enabled") }}
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: docker-registry
+  namespace: {{ .Release.Namespace }}
+  {{- with (index .Values "docker-registry" "httproute" "annotations") }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  {{- with (index .Values "docker-registry" "httproute" "parentRefs") }}
+  parentRefs:
+    {{- toYaml . | nindent 2 }}
+  {{- end }}
+  {{- with (index .Values "docker-registry" "httproute" "hostnames") }}
+  hostnames:
+    {{- toYaml . | nindent 2 }}
+  {{- end }}
+  rules:
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /
+    backendRefs:
+    - name: docker-registry
+      port: 5000
+{{- end }}

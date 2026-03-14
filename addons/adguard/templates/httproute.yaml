@@ -1,19 +1,21 @@
-{{- if (index .Values "argo-cd" "server" "httproute" "enabled") }}
+{{- if .Values.httproute.enabled -}}
+{{- $fullName := include "adguard.fullname" . -}}
 apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
-  name: argocd-server
-  namespace: argocd
-  {{- with (index .Values "argo-cd" "server" "httproute" "annotations") }}
+  name: {{ $fullName }}
+  labels:
+    {{- include "adguard.labels" . | nindent 4 }}
+  {{- with .Values.httproute.annotations }}
   annotations:
     {{- toYaml . | nindent 4 }}
   {{- end }}
 spec:
-  {{- with (index .Values "argo-cd" "server" "httproute" "parentRefs") }}
+  {{- with .Values.httproute.parentRefs }}
   parentRefs:
     {{- toYaml . | nindent 2 }}
   {{- end }}
-  {{- with (index .Values "argo-cd" "server" "httproute" "hostnames") }}
+  {{- with .Values.httproute.hostnames }}
   hostnames:
     {{- toYaml . | nindent 2 }}
   {{- end }}
@@ -23,6 +25,6 @@ spec:
         type: PathPrefix
         value: /
     backendRefs:
-    - name: argo-cd-argocd-server
+    - name: {{ $fullName }}-http
       port: 80
 {{- end }}

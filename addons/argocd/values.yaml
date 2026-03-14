@@ -203,30 +203,15 @@ argo-cd:
       enabled: false
 
     # Gateway API HTTPRoute (replaces ingress)
-    gatewayAPI:
+    httproute:
       enabled: true
-
-      # -- The list of additional hostnames to be covered by ingress record
-      # @default -- `[]` (See [values.yaml])
-      extraHosts: []
-        # - name: argocd.example.com
-        #   path: /
-
-      # -- Additional ingress paths
-      # @default -- `[]` (See [values.yaml])
-      ## Note: Supports use of custom Helm templates
-      extraPaths: []
-        # - path: /*
-        #   pathType: Prefix
-        #   backend:
-        #     service:
-        #       name: ssl-redirect
-        #       port:
-        #         name: use-annotation
-      paths:
-        - /
-      pathType: Prefix
-      https: true
+      annotations: {}
+      parentRefs:
+      - name: homelab-gateway
+        namespace: envoy-gateway-system
+        sectionName: https
+      hostnames:
+      - argocd.homelab.home
 
   notifications:
     enabled: true

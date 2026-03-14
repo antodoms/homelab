@@ -181,7 +181,6 @@ spec:
     app: jackett
 {{ end }}
 ---
-
 ### INGRESS
 {{ if .Values.jackett.ingress.enabled }}
 apiVersion: networking.k8s.io/v1

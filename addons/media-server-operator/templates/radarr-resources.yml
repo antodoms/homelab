@@ -192,10 +192,10 @@ spec:
     app: radarr
 {{ end }}
 ---
-### HTTPROUTE (Gateway API) ###
+### INGRESS ###
 {{ if .Values.radarr.ingress.enabled }}
-apiVersion: gateway.networking.k8s.io/v1
-kind: HTTPRoute
+apiVersion: networking.k8s.io/v1
+kind: Ingress
 metadata:
   name: radarr
   labels:
@@ -205,18 +205,23 @@ metadata:
     {{- toYaml . | nindent 4 }}
   {{- end }}
 spec:
-  parentRefs:
-  - name: homelab-gateway
-    namespace: envoy-gateway-system
-  hostnames:
-  - {{ .Values.general.ingress_host | quote }}
+{{- if .Values.radarr.ingress.tls.enabled }}
+  tls:
+    - secretName: "radarr-tls"
+      hosts:
+        - {{ .Values.general.ingress_host | quote }}
+{{ end }}
+  ingressClassName: {{ .Values.general.ingress.ingressClassName }}
   rules:
-  - matches:
-    - path:
-        type: PathPrefix
-        value: {{ .Values.radarr.ingress.path }}
-    backendRefs:
-    - name: radarr
-      port: {{ .Values.radarr.service.port }}
+    - host: {{ .Values.general.ingress_host | quote }}
+      http:
+        paths:
+          - path: {{ .Values.radarr.ingress.path }}
+            pathType: Prefix
+            backend:
+              service:
+                name: radarr
+                port:
+                  number: {{ .Values.radarr.service.port }}
 {{ end }}
 {{ end }}

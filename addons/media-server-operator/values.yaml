@@ -51,12 +51,29 @@ sonarr:
     extraLBAnnotations: {}
     # Defines an additional LB service, requires cloud provider service or MetalLB
   ingress:
-    enabled: true
+    enabled: false
     annotations:
       cert-manager.io/cluster-issuer: selfsigned
     path: /sonarr
     tls:
       enabled: true
+  httproute:
+    enabled: true
+    annotations: {}
+    parentRefs:
+    - name: homelab-gateway
+      namespace: envoy-gateway-system
+      sectionName: https
+    hostnames:
+    - mediaserver.homelab.home
+    rules:
+    - matches:
+      - path:
+          type: PathPrefix
+          value: /sonarr
+      backendRefs:
+      - name: sonarr
+        port: 8989
   resources:
     limits:
       cpu: "200m"
@@ -87,12 +104,29 @@ radarr:
     extraLBService: false
     extraLBAnnotations: {}
   ingress:
-    enabled: true
+    enabled: false
     annotations:
       cert-manager.io/cluster-issuer: selfsigned
     path: /radarr
     tls:
       enabled: true
+  httproute:
+    enabled: true
+    annotations: {}
+    parentRefs:
+    - name: homelab-gateway
+      namespace: envoy-gateway-system
+      sectionName: https
+    hostnames:
+    - mediaserver.homelab.home
+    rules:
+    - matches:
+      - path:
+          type: PathPrefix
+          value: /radarr
+      backendRefs:
+      - name: radarr
+        port: 7878
   resources:
     limits:
       cpu: "200m"
@@ -115,12 +149,29 @@ jackett:
     extraLBAnnotations: {}
     # Defines an additional LB service, requires cloud provider service or MetalLB
   ingress:
-    enabled: true
+    enabled: false
     annotations:
       cert-manager.io/cluster-issuer: selfsigned
     path: /jackett
     tls:
       enabled: true
+  httproute:
+    enabled: true
+    annotations: {}
+    parentRefs:
+    - name: homelab-gateway
+      namespace: envoy-gateway-system
+      sectionName: https
+    hostnames:
+    - mediaserver.homelab.home
+    rules:
+    - matches:
+      - path:
+          type: PathPrefix
+          value: /jackett
+      backendRefs:
+      - name: jackett
+        port: 9117
   resources:
     limits:
       cpu: "200m"
@@ -156,12 +207,29 @@ transmission:
       extraLBService: false
       extraLBAnnotations: {}
   ingress:
-    enabled: true
+    enabled: false
     annotations:
       cert-manager.io/cluster-issuer: selfsigned
     path: /transmission
     tls:
       enabled: true
+  httproute:
+    enabled: true
+    annotations: {}
+    parentRefs:
+    - name: homelab-gateway
+      namespace: envoy-gateway-system
+      sectionName: https
+    hostnames:
+    - mediaserver.homelab.home
+    rules:
+    - matches:
+      - path:
+          type: PathPrefix
+          value: /transmission
+      backendRefs:
+      - name: transmission
+        port: 9091
   config:
     auth:
       enabled: false
@@ -199,12 +267,29 @@ sabnzbd:
       extraLBService: false
       extraLBAnnotations: {}
   ingress:
-    enabled: true
+    enabled: false
     annotations:
       cert-manager.io/cluster-issuer: selfsigned
     path: /sabnzbd
     tls:
       enabled: true
+  httproute:
+    enabled: true
+    annotations: {}
+    parentRefs:
+    - name: homelab-gateway
+      namespace: envoy-gateway-system
+      sectionName: https
+    hostnames:
+    - mediaserver.homelab.home
+    rules:
+    - matches:
+      - path:
+          type: PathPrefix
+          value: /sabnzbd
+      backendRefs:
+      - name: sabnzbd
+        port: 8080
   resources:
     limits:
       cpu: "200m"
@@ -227,12 +312,29 @@ prowlarr:
     extraLBService: false
     extraLBAnnotations: {}
   ingress:
-    enabled: true
+    enabled: false
     annotations:
       cert-manager.io/cluster-issuer: selfsigned
     path: /prowlarr
     tls:
       enabled: true
+  httproute:
+    enabled: true
+    annotations: {}
+    parentRefs:
+    - name: homelab-gateway
+      namespace: envoy-gateway-system
+      sectionName: https
+    hostnames:
+    - mediaserver.homelab.home
+    rules:
+    - matches:
+      - path:
+          type: PathPrefix
+          value: /prowlarr
+      backendRefs:
+      - name: prowlarr
+        port: 9696
   resources:
     limits:
       cpu: "200m"
@@ -257,11 +359,28 @@ plex:
     extraLBService: false
     extraLBAnnotations: {}
   ingress:
-    enabled: true
+    enabled: false
     annotations:
       cert-manager.io/cluster-issuer: selfsigned
     tls:
       enabled: true
+  httproute:
+    enabled: true
+    annotations: {}
+    parentRefs:
+    - name: homelab-gateway
+      namespace: envoy-gateway-system
+      sectionName: https
+    hostnames:
+    - plex.homelab.home
+    rules:
+    - matches:
+      - path:
+          type: PathPrefix
+          value: /
+      backendRefs:
+      - name: plex
+        port: 32400
   resources:
     limits:
       cpu: "200m"
@@ -284,11 +403,28 @@ jellyfin:
     # Defines an additional LB service, requires cloud provider service or MetalLB
     extraLBService: false
   ingress:
-    enabled: true
+    enabled: false
     annotations:
       cert-manager.io/cluster-issuer: selfsigned
     tls:
       enabled: true
+  httproute:
+    enabled: true
+    annotations: {}
+    parentRefs:
+    - name: homelab-gateway
+      namespace: envoy-gateway-system
+      sectionName: https
+    hostnames:
+    - jellyfin.homelab.home
+    rules:
+    - matches:
+      - path:
+          type: PathPrefix
+          value: /
+      backendRefs:
+      - name: jellyfin
+        port: 8096
   resources:
     limits:
       cpu: "200m"
@@ -311,11 +447,28 @@ mediafusion:
     # Defines an additional LB service, requires cloud provider service or MetalLB
     extraLBService: false
   ingress:
-    enabled: true
+    enabled: false
     annotations:
       cert-manager.io/cluster-issuer: selfsigned
     tls:
       enabled: true
+  httproute:
+    enabled: true
+    annotations: {}
+    parentRefs:
+    - name: homelab-gateway
+      namespace: envoy-gateway-system
+      sectionName: https
+    hostnames:
+    - mediafusion.homelab.home
+    rules:
+    - matches:
+      - path:
+          type: PathPrefix
+          value: /
+      backendRefs:
+      - name: mediafusion-svc
+        port: 8000
   resources:
     requests:
       memory: "500Mi"
@@ -331,4 +484,3 @@ mediafusion:
     accessModes: ReadWriteOnce
     storage: 5Gi
     selector: {}
-  

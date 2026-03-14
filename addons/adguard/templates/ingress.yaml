@@ -1,7 +1,7 @@
 {{- if .Values.ingress.enabled -}}
 {{- $fullName := include "adguard.fullname" . -}}
-apiVersion: gateway.networking.k8s.io/v1
-kind: HTTPRoute
+apiVersion: networking.k8s.io/v1
+kind: Ingress
 metadata:
   name: {{ $fullName }}
   labels:
@@ -11,21 +11,21 @@ metadata:
     {{- toYaml . | nindent 4 }}
   {{- end }}
 spec:
-  parentRefs:
-  - name: homelab-gateway
-    namespace: envoy-gateway-system
-  {{- if .Values.ingress.hosts }}
-  hostnames:
-    {{- range .Values.ingress.hosts }}
-    - {{ .host | quote }}
-    {{- end }}
-  {{- end }}
   rules:
-  - matches:
-    - path:
-        type: PathPrefix
-        value: /
-    backendRefs:
-    - name: {{ $fullName }}-http
-      port: 80
+    {{- range .Values.ingress.hosts }}
+    - host: {{ .host | quote }}
+      http:
+        paths:
+          - pathType: Prefix
+            path: /
+            backend:
+              service:
+                name: {{ $fullName }}-http
+                port:
+                  name: http
+    {{- end }}
+  {{- with .Values.ingress.tls }}
+  tls:
+    {{- toYaml . | nindent 4}}
+  {{- end }}
 {{- end }}
