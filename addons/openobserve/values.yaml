@@ -26,11 +26,18 @@ openobserve:
 
   ingester:
     persistence:
-      enabled: true
-      size: 50Gi
+      size: 20Gi
       storageClass: "mayastor-sc"
-      accessModes:
-        - ReadWriteOnce
+  
+  querier:
+    persistence:
+      size: 20Gi
+      storageClass: "mayastor-sc"
+  
+  alertquerier:
+    persistence:
+      size: 20Gi
+      storageClass: "mayastor-sc"
 
   # Disable etcd and minio for local mode
   etcd:
