@@ -83,6 +83,11 @@ dockerRegistry:
   enable: true
   createNamespace: true
 
+# CloudNativePG operator
+cloudnativePg:
+  enable: true
+  createNamespace: true
+
 # OpenObserve - observability platform (logs, metrics, traces)
 openobserve:
   enable: true
