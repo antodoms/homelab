@@ -1,0 +1,14 @@
+apiVersion: v2
+name: openobserve-collector
+description: A Helm chart for OpenObserve Collector (OTEL Collector for OpenObserve)
+
+type: application
+
+version: 0.1.0
+
+appVersion: "0.136.0"
+
+dependencies:
+  - name: openobserve-collector
+    version: 0.4.3
+    repository: https://charts.openobserve.ai

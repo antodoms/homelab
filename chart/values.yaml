@@ -88,8 +88,18 @@ cloudnativePg:
   enable: true
   createNamespace: true
 
+# OpenTelemetry operator (required by OpenObserve collector)
+opentelemetryOperator:
+  enable: true
+  createNamespace: true
+
 # OpenObserve - observability platform (logs, metrics, traces)
 openobserve:
+  enable: true
+  createNamespace: true
+
+# OpenObserve collector - OTEL collector for logs, metrics, traces
+openobserveCollector:
   enable: true
   createNamespace: true
 

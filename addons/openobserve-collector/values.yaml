@@ -1,0 +1,16 @@
+openobserve-collector:
+  k8sCluster: homelab
+
+  exporters:
+    otlphttp/openobserve:
+      endpoint: http://openobserve-router.openobserve.svc.cluster.local:5080/api/default
+    otlphttp/openobserve_k8s_events:
+      endpoint: http://openobserve-router.openobserve.svc.cluster.local:5080/api/default
+
+  # Disable bundled OTel operator - we install it separately
+  opentelemetry-operator:
+    enabled: false
+
+  # Disable bundled kube-state-metrics - already installed via kube-prometheus-stack
+  kube-state-metrics:
+    enabled: false
