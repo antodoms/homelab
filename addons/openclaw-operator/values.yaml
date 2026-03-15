@@ -9,6 +9,10 @@ openclaw-operator:
       cpu: 100m
       memory: 128Mi
 
+nfsshare:
+  server: ""
+  path: ""
+
 httproute:
   enabled: true
   annotations: {}

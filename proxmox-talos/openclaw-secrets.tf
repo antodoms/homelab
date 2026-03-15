@@ -24,10 +24,11 @@ resource "kubernetes_secret" "openclaw_api_keys" {
     namespace = "openclaw-operator-system"
   }
 
+  # Extract all keys under openclaw_secrets.* from SOPS file
   data = {
-    TELEGRAM_BOT_TOKEN   = data.sops_file.secrets.data["openclaw_telegram_bot_token"]
-    ANTHROPIC_API_KEY    = data.sops_file.secrets.data["openclaw_anthropic_api_key"]
-    BRAVE_API_KEY        = data.sops_file.secrets.data["openclaw_brave_search_api_key"]
+    for key, value in data.sops_file.secrets.data :
+    trimprefix(key, "openclaw_secrets.") => value
+    if startswith(key, "openclaw_secrets.")
   }
 
   type = "Opaque"

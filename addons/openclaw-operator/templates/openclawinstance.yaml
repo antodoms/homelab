@@ -13,3 +13,46 @@ spec:
     persistence:
       enabled: true
       size: 10Gi
+  
+  initContainers:
+    - name: install-gogcli
+      image: curlimages/curl:8.5.0
+      command:
+        - sh
+        - -c
+        - |
+          curl -fsSL https://github.com/steipete/gogcli/releases/download/v0.12.0/gogcli_0.12.0_linux_amd64.tar.gz \
+            -o /tmp/gogcli.tar.gz
+          tar -xzf /tmp/gogcli.tar.gz -C /tmp
+          cp /tmp/gog /extra-bin/gog
+          chmod +x /extra-bin/gog
+      volumeMounts:
+        - name: extra-bin
+          mountPath: /extra-bin
+
+  extraVolumes:
+    - name: extra-bin
+      emptyDir: {}
+    - name: gog-config
+      emptyDir: {}
+    - name: gog-credentials
+      secret:
+        secretName: openclaw-api-keys
+        items:
+          - key: GOG_CLIENT_CREDENTIALS_JSON
+            path: gog_credentials.json
+    - name: nfsshare
+      nfs:
+        server: {{ .Values.nfsshare.server }}
+        path: {{ .Values.nfsshare.path }}
+  extraVolumeMounts:
+    - name: extra-bin
+      mountPath: /usr/local/extra-bin
+    - name: gog-config
+      mountPath: /home/openclaw/.config
+    - name: gog-credentials
+      mountPath: /usr/local/extra-bin/gog_credentials.json
+      subPath: gog_credentials.json
+      readOnly: true
+    - name: nfsshare
+      mountPath: /mnt/nas

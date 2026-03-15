@@ -19,6 +19,10 @@ spec:
       parameters:
       - name: httproute.hostnames[0]
         value: openclaw.{{ .Values.ingressDomain }}
+      - name: nfsshare.server
+        value: {{ .Values.NfsServerIp }}
+      - name: nfsshare.path
+        value: {{ .Values.MediaServerNFSPath }}
   destination:
     server: {{ .Values.destinationServer | default "https://kubernetes.default.svc" }}
     namespace: openclaw-operator-system
