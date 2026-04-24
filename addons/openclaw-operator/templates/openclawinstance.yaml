@@ -9,12 +9,32 @@ spec:
   gateway:
     controlUiOrigins:
       - https://{{ .Values.httproute.hostnames | first }}
+  config:
+    mergeMode: overwrite
+    raw:
+      agents:
+        defaults:
+          model:
+            primary: "openrouter/inclusionai/ling-2.6-1t:free"
   storage:
     persistence:
       enabled: true
       size: 10Gi
   
   initContainers:
+    - name: install-models
+      image: busybox:1.37
+      command:
+        - sh
+        - -c
+        - |
+          mkdir -p /data/agents/main/agent
+          cp /models-config/models.json /data/agents/main/agent/models.json
+      volumeMounts:
+        - name: data
+          mountPath: /data
+        - name: models-config
+          mountPath: /models-config
     - name: install-gogcli
       image: curlimages/curl:8.5.0
       command:
@@ -31,6 +51,9 @@ spec:
           mountPath: /extra-bin
 
   extraVolumes:
+    - name: models-config
+      configMap:
+        name: openclaw-models
     - name: extra-bin
       emptyDir: {}
     - name: gog-config
