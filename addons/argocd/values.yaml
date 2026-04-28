@@ -127,7 +127,7 @@ argo-cd:
             wget -qO- https://github.com/jkroepke/helm-secrets/releases/download/v${HELM_SECRETS_VERSION}/helm-secrets.tar.gz | tar -C /custom-tools/helm-plugins -xzf-;
             # Remove platformCommand from plugin.yaml to suppress Helm warning that breaks ArgoCD manifest parsing
             sed -i '/^platformCommand:/,/^[^ ]/{ /^platformCommand:/d; /^  /d; }' /custom-tools/helm-plugins/helm-secrets/plugin.yaml
-            wget -qO /custom-tools/sops https://github.com/mozilla/sops/releases/download/v${SOPS_VERSION}/sops-v${SOPS_VERSION}.linux.amd64
+            wget -qO /custom-tools/sops https://github.com/getsops/sops/releases/download/v${SOPS_VERSION}/sops-v${SOPS_VERSION}.linux.amd64
             wget -qO /custom-tools/kubectl https://dl.k8s.io/release/v${KUBECTL_VERSION}/bin/linux/amd64/kubectl
             chmod +x /custom-tools/*
         volumeMounts:
