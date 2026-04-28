@@ -2,47 +2,134 @@ wazuh:
   # Wazuh Manager
   wazuh:
     master:
-      replicas: 1
       resources:
         limits:
-          cpu: 500m
+          cpu: "1"
           memory: 1Gi
         requests:
           cpu: 200m
           memory: 512Mi
-      persistence:
-        enabled: true
-        size: 10Gi
-        storageClassName: mayastor-sc
+      storageSize: 10Gi
+      storageClass: mayastor-sc
 
     worker:
-      replicas: 0
+      replicas: 1
+      resources:
+        limits:
+          cpu: "1"
+          memory: 1Gi
+        requests:
+          cpu: 200m
+          memory: 512Mi
+      storageSize: 10Gi
+      storageClass: mayastor-sc
+
+    # Custom rules for Falco alerts (decoded by built-in json decoder)
+    localRules: |
+      <group name="falco,">
+        <rule id="100100" level="3">
+          <decoded_as>json</decoded_as>
+          <field name="hostname">\.+</field>
+          <field name="source">^syscall$</field>
+          <field name="priority">\.+</field>
+          <description>Falco: $(rule)</description>
+          <group>falco,</group>
+        </rule>
+        <rule id="100101" level="6">
+          <if_sid>100100</if_sid>
+          <field name="priority">^Notice$</field>
+          <description>Falco Notice: $(rule)</description>
+          <group>falco,</group>
+        </rule>
+        <rule id="100102" level="9">
+          <if_sid>100100</if_sid>
+          <field name="priority">^Warning$</field>
+          <description>Falco Warning: $(rule)</description>
+          <group>falco,</group>
+        </rule>
+        <rule id="100103" level="12">
+          <if_sid>100100</if_sid>
+          <field name="priority">^Error$</field>
+          <description>Falco Error: $(rule)</description>
+          <group>falco,</group>
+        </rule>
+        <rule id="100104" level="15">
+          <if_sid>100100</if_sid>
+          <field name="priority">^Critical$</field>
+          <description>Falco Critical: $(rule)</description>
+          <group>falco,</group>
+        </rule>
+      </group>
+
+    # Wazuh agent reads Falco alerts from shared hostPath
+    agentGroupConf:
+      - name: default
+        agent: |
+          <agent_config>
+            <localfile>
+              <location>/host/var/log/falco/events.json</location>
+              <log_format>json</log_format>
+            </localfile>
+          </agent_config>
 
   # Wazuh Indexer (OpenSearch)
   indexer:
     replicas: 1
+    # Init container to set vm.max_map_count (required by OpenSearch)
+    sysctlImage:
+      enabled: true
     resources:
       limits:
-        cpu: 500m
-        memory: 1Gi
+        cpu: "1"
+        memory: 2Gi
       requests:
-        cpu: 200m
-        memory: 512Mi
-    persistence:
-      enabled: true
-      size: 20Gi
-      storageClassName: mayastor-sc
+        cpu: 500m
+        memory: 2Gi
+    env:
+      OPENSEARCH_JAVA_OPTS: "-Xms1g -Xmx1g -Dlog4j2.formatMsgNoLookups=true"
+    storageSize: 20Gi
+    storageClass: mayastor-sc
 
   # Wazuh Dashboard (OpenSearch Dashboards)
   dashboard:
     replicas: 1
     resources:
       limits:
-        cpu: 500m
-        memory: 512Mi
+        cpu: "1"
+        memory: 1Gi
       requests:
-        cpu: 100m
+        cpu: 200m
+        memory: 512Mi
+    livenessProbe:
+      initialDelaySeconds: 60
+      periodSeconds: 20
+      timeoutSeconds: 5
+      failureThreshold: 15
+      httpGet:
+        path: /api/status
+        port: 5601
+    readinessProbe:
+      initialDelaySeconds: 60
+      periodSeconds: 20
+      timeoutSeconds: 5
+      failureThreshold: 15
+      httpGet:
+        path: /api/status
+        port: 5601
+
+  # Wazuh Agent DaemonSet
+  agent:
+    resources:
+      limits:
+        cpu: 200m
         memory: 256Mi
+      requests:
+        cpu: 50m
+        memory: 128Mi
+
+  # Disable bundled cert-manager (already deployed in cluster)
+  cert-manager:
+    enabled: false
 
   # Gateway API HTTPRoute (replaces ingress)
   httproute:

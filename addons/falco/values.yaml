@@ -1,26 +1,44 @@
 falco:
-  # Use modern eBPF driver (required for Talos Linux - no kernel module support)
+  # Use modern eBPF driver with Falco 0.43.1 (kernel 6.12 support)
   driver:
     kind: modern_ebpf
 
-  # Collect syscall events
+  # Container runtime socket for Talos
   collectors:
     containerd:
       enabled: true
       socket: /run/containerd/containerd.sock
 
-  tty: false
+  # Privileged security context required for eBPF probe on Talos
+  containerSecurityContext:
+    privileged: true
 
-  # Falco outputs configuration
+  tty: true
+
+  # Falco engine configuration
   falco:
-    jsonOutput: true
-    jsonIncludeOutputProperty: true
-    logStderr: true
-    logSyslog: false
-    logLevel: info
+    json_output: true
+    json_include_output_property: true
+    log_stderr: true
+    log_syslog: false
+    log_level: info
     priority: debug
-    httpOutput:
-      enabled: false
+    # Write alerts to file for Wazuh agent ingestion
+    file_output:
+      enabled: true
+      keep_alive: false
+      filename: /var/log/falco/events.json
+
+  # Mount host path for Falco log output (shared with Wazuh agent)
+  mounts:
+    volumes:
+      - name: falco-logs
+        hostPath:
+          path: /var/log/falco
+          type: DirectoryOrCreate
+    volumeMounts:
+      - name: falco-logs
+        mountPath: /var/log/falco
 
   # Falcosidekick for forwarding alerts
   falcosidekick:

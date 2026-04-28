@@ -33,10 +33,14 @@ spec:
         - /metadata/managedFields
         - /metadata/labels
   syncPolicy:
+    managedNamespaceMetadata:
+      labels:
+        pod-security.kubernetes.io/enforce: privileged
+        pod-security.kubernetes.io/enforce-version: latest
     syncOptions:
     - RespectIgnoreDifferences=true
     - CreateNamespace={{ .Values.wazuh.createNamespace }}
-    - ServerSideApply=true
+    - ServerSideApply=false
     automated:
       selfHeal: true
       prune: true
