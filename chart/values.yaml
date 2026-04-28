@@ -95,12 +95,12 @@ opentelemetryOperator:
 
 # OpenObserve - observability platform (logs, metrics, traces)
 openobserve:
-  enable: true
+  enable: false
   createNamespace: true
 
 # OpenObserve collector - OTEL collector for logs, metrics, traces
 openobserveCollector:
-  enable: true
+  enable: false
   createNamespace: true
 
 # OpenClaw Operator
