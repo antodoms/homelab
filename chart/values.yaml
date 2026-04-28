@@ -112,3 +112,8 @@ openclawOperator:
 falco:
   enable: true
   createNamespace: true
+
+# Wazuh - SIEM/XDR security platform
+wazuh:
+  enable: true
+  createNamespace: true

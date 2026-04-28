@@ -1,0 +1,58 @@
+wazuh:
+  # Wazuh Manager
+  wazuh:
+    master:
+      replicas: 1
+      resources:
+        limits:
+          cpu: 500m
+          memory: 1Gi
+        requests:
+          cpu: 200m
+          memory: 512Mi
+      persistence:
+        enabled: true
+        size: 10Gi
+        storageClassName: mayastor-sc
+
+    worker:
+      replicas: 0
+
+  # Wazuh Indexer (OpenSearch)
+  indexer:
+    replicas: 1
+    resources:
+      limits:
+        cpu: 500m
+        memory: 1Gi
+      requests:
+        cpu: 200m
+        memory: 512Mi
+    persistence:
+      enabled: true
+      size: 20Gi
+      storageClassName: mayastor-sc
+
+  # Wazuh Dashboard (OpenSearch Dashboards)
+  dashboard:
+    replicas: 1
+    resources:
+      limits:
+        cpu: 500m
+        memory: 512Mi
+      requests:
+        cpu: 100m
+        memory: 256Mi
+
+  # Gateway API HTTPRoute (replaces ingress)
+  httproute:
+    enabled: true
+    annotations: {}
+    parentRefs:
+    - group: gateway.networking.k8s.io
+      kind: Gateway
+      name: homelab-gateway
+      namespace: envoy-gateway-system
+      sectionName: https
+    hostnames:
+    - wazuh.homelab.home
