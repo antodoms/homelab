@@ -1,0 +1,37 @@
+falco:
+  # Use modern eBPF driver (required for Talos Linux - no kernel module support)
+  driver:
+    kind: modern_ebpf
+
+  # Collect syscall events
+  collectors:
+    containerd:
+      enabled: true
+      socket: /run/containerd/containerd.sock
+
+  tty: false
+
+  # Falco outputs configuration
+  falco:
+    jsonOutput: true
+    jsonIncludeOutputProperty: true
+    logStderr: true
+    logSyslog: false
+    logLevel: info
+    priority: debug
+    httpOutput:
+      enabled: false
+
+  # Falcosidekick for forwarding alerts
+  falcosidekick:
+    enabled: true
+    replicaCount: 1
+
+  # Resource limits for homelab
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 100m
+      memory: 256Mi
