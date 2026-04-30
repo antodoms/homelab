@@ -1,0 +1,87 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    "docker:enableMajor",
+    ":dependencyDashboard",
+    ":semanticCommits",
+    ":automergePatch"
+  ],
+  "timezone": "Australia/Sydney",
+  // PR creation schedule is controlled by the GitHub Actions cron in .github/workflows/renovate.yaml
+  "prConcurrentLimit": 5,
+  "prHourlyLimit": 2,
+  "labels": ["renovate", "dependencies"],
+  "commitMessagePrefix": "chore(deps):",
+
+  // Helm chart dependencies in addons/*/Chart.yaml
+  "helm-values": {
+    "managerFilePatterns": ["/addons/.+/values\\.yaml$/", "/chart/values\\.yaml$/"]
+  },
+
+  // Terraform lockfile maintenance
+  "terraform": {
+    "managerFilePatterns": [
+      "/proxmox-talos/\\.terraform\\.lock\\.hcl$/",
+      "/aws-account/\\.terraform\\.lock\\.hcl$/",
+      "/proxmox-talos/provider\\.tf$/",
+      "/aws-account/provider\\.tf$/"
+    ]
+  },
+
+  "packageRules": [
+    // Group all Terraform provider updates
+    {
+      "matchManagers": ["terraform"],
+      "groupName": "terraform providers",
+      "automerge": false
+    },
+    // Group all GitHub Actions updates
+    {
+      "matchManagers": ["github-actions"],
+      "groupName": "github actions",
+      "automerge": true
+    },
+    // Helm chart updates - one PR per chart for safety
+    {
+      "matchManagers": ["helmv3"],
+      "automerge": false,
+      "labels": ["renovate", "helm"]
+    },
+    // Pin critical infrastructure charts to minor updates only
+    {
+      "matchManagers": ["helmv3"],
+      "matchPackageNames": ["cilium", "argo-cd", "cert-manager"],
+      "matchUpdateTypes": ["major"],
+      "enabled": false
+    },
+    // Container image updates
+    {
+      "matchManagers": ["helm-values"],
+      "matchDatasources": ["docker"],
+      "labels": ["renovate", "container"],
+      "automerge": false
+    },
+    // kubeshark helm repo is unreachable — skip until they fix it
+    {
+      "matchManagers": ["helmv3"],
+      "matchPackageNames": ["kubeshark"],
+      "enabled": false
+    }
+  ],
+
+  // Custom regex managers for dependencies Renovate doesn't auto-detect
+  "customManagers": [
+    // Packer plugin versions (source "github.com/hashicorp/proxmox" -> repo "hashicorp/packer-plugin-proxmox")
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["/packer/provider\\.pkr\\.hcl$/"],
+      "matchStrings": [
+        "version\\s*=\\s*\"(?<currentValue>[^\"]+)\"\\s*\\n\\s*source\\s*=\\s*\"github\\.com/(?<depOrg>[^/]+)/(?<depShort>[^\"]+)\""
+      ],
+      "depNameTemplate": "{{{depOrg}}}/packer-plugin-{{{depShort}}}",
+      "datasourceTemplate": "github-releases",
+      "versioningTemplate": "hashicorp"
+    }
+  ]
+}

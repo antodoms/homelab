@@ -1,0 +1,36 @@
+name: Renovate
+
+on:
+  workflow_dispatch:
+    inputs:
+      dryRun:
+        description: "Dry run (log only, no PRs)"
+        required: false
+        default: false
+        type: boolean
+  schedule:
+    # Run every Wednesday at 06:00 UTC (16:00 AEST)
+    - cron: "0 6 * * 3"
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
+jobs:
+  renovate:
+    name: Renovate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Self-hosted Renovate
+        uses: renovatebot/github-action@v46.1.12
+        with:
+          configurationFile: renovate.json5
+          token: ${{ secrets.GITHUB_TOKEN }}
+        env:
+          LOG_LEVEL: info
+          RENOVATE_REPOSITORIES: ${{ github.repository }}
+          RENOVATE_DRY_RUN: ${{ inputs.dryRun && 'full' || '' }}
