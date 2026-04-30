@@ -1,4 +1,0 @@
-secrets/*.yaml
-!secrets/*.enc.yaml
-.terraform
-.terraform.lock.hcl

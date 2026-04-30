@@ -1,12 +1,2 @@
 version: 2
-updates:
-- package-ecosystem: bundler
-  directory: "/controlcenter"
-  schedule:
-    interval: daily
-  open-pull-requests-limit: 10
-- package-ecosystem: github-actions
-  directory: "/controlcenter"
-  schedule:
-    interval: daily
-  open-pull-requests-limit: 10
+updates: []
