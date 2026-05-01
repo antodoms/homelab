@@ -17,12 +17,12 @@ terraform {
 
     helm = {
       source  = "hashicorp/helm"
-      version = "2.14.0"
+      version = "3.1.1"
     }
 
     sops = {
       source  = "carlpett/sops"
-      version = "0.7.1"
+      version = "1.4.1"
     }
 
     proxmox = {
