@@ -9,6 +9,6 @@ vpa:
   updater:
     image:
       repository: registry.k8s.io/autoscaling/vpa-updater
-      tag: "0.9.2" #  This tag supports autoscaling.k8s.io/v1beta2. Prometheus Helm chart VPA only supports autoscaling.k8s.io/v1beta2 hence we are aligning both
+      tag: "0.14.0" #  This tag supports autoscaling.k8s.io/v1beta2. Prometheus Helm chart VPA only supports autoscaling.k8s.io/v1beta2 hence we are aligning both
     nodeSelector:
       kubernetes.io/os: linux
