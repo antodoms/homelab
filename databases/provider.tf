@@ -12,7 +12,7 @@ terraform {
     # see https://github.com/siderolabs/terraform-provider-talos
     talos = {
       source = "siderolabs/talos"
-      version = "0.7.0"
+      version = "0.11.0"
     }
 
     helm = {
@@ -32,7 +32,7 @@ terraform {
 
     local = {
       source = "hashicorp/local"
-      version = "2.5.2"
+      version = "2.8.0"
     }
 
     kubernetes = {
@@ -47,7 +47,7 @@ terraform {
 
     tls = {
       source = "hashicorp/tls"
-      version = "4.0.5"
+      version = "4.2.1"
     }
   }
 }
