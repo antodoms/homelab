@@ -477,7 +477,7 @@ mediafusion:
   enabled: true
   replicaCount: 1
   container:
-    image: mhdzumair/mediafusion:v3.9.15
+    image: mhdzumair/mediafusion:5.5.1
     nodeSelector: {}
     port: 8000
   service:
