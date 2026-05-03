@@ -44,6 +44,16 @@ spec:
       name: openebs-etcd-pre-upgrade
       jsonPointers:
         - /spec/template
+    - group: ""
+      kind: Secret
+      name: openebs-etcd-jwt-token
+      jsonPointers:
+        - /data/jwt-token.pem
+    - group: apps
+      kind: StatefulSet
+      name: openebs-etcd
+      jqPathExpressions:
+        - .spec.template.metadata.annotations["checksum/token-secret"]
 ---
 apiVersion: argoproj.io/v1alpha1
 kind: Application
