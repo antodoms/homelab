@@ -3,7 +3,7 @@ locals {
   openclaw_enabled = yamldecode(file("${path.module}/../chart/values.yaml"))["openclawOperator"]["enable"]
 }
 
-resource "kubernetes_namespace" "openclaw_operator_system" {
+resource "kubernetes_namespace_v1" "openclaw_operator_system" {
   count = local.openclaw_enabled ? 1 : 0
 
   metadata {
@@ -12,11 +12,11 @@ resource "kubernetes_namespace" "openclaw_operator_system" {
 
   depends_on = [
     talos_machine_bootstrap.this,
-    data.talos_cluster_kubeconfig.this
+    talos_cluster_kubeconfig.this
   ]
 }
 
-resource "kubernetes_secret" "openclaw_api_keys" {
+resource "kubernetes_secret_v1" "openclaw_api_keys" {
   count = local.openclaw_enabled ? 1 : 0
 
   metadata {
@@ -33,5 +33,5 @@ resource "kubernetes_secret" "openclaw_api_keys" {
 
   type = "Opaque"
 
-  depends_on = [kubernetes_namespace.openclaw_operator_system]
+  depends_on = [kubernetes_namespace_v1.openclaw_operator_system]
 }

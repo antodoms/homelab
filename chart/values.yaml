@@ -80,7 +80,7 @@ kubeshark:
   createNamespace: true
 
 dockerRegistry:
-  enable: true
+  enable: false
   createNamespace: true
 
 # CloudNativePG operator

@@ -9,7 +9,7 @@ wazuh:
         requests:
           cpu: 200m
           memory: 512Mi
-      storageSize: 10Gi
+      storageSize: 5Gi
       storageClass: mayastor-sc
 
     worker:
@@ -21,7 +21,7 @@ wazuh:
         requests:
           cpu: 200m
           memory: 512Mi
-      storageSize: 10Gi
+      storageSize: 5Gi
       storageClass: mayastor-sc
 
     # Custom rules for Falco alerts (decoded by built-in json decoder)
@@ -87,7 +87,7 @@ wazuh:
         memory: 2Gi
     env:
       OPENSEARCH_JAVA_OPTS: "-Xms1g -Xmx1g -Dlog4j2.formatMsgNoLookups=true"
-    storageSize: 20Gi
+    storageSize: 5Gi
     storageClass: mayastor-sc
 
   # Wazuh Dashboard (OpenSearch Dashboards)
