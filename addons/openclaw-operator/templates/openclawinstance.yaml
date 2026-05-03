@@ -16,6 +16,11 @@ spec:
         defaults:
           model:
             primary: "openrouter/inclusionai/ling-2.6-1t:free"
+  resources:
+    requests:
+      cpu: 1m
+      memory: 1Mi
+
   storage:
     persistence:
       enabled: true
@@ -72,7 +77,7 @@ spec:
     - name: extra-bin
       mountPath: /usr/local/extra-bin
     - name: gog-config
-      mountPath: /home/openclaw/.config
+      mountPath: /home/openclaw/.config/gog
     - name: gog-credentials
       mountPath: /usr/local/extra-bin/gog_credentials.json
       subPath: gog_credentials.json
