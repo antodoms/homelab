@@ -19,17 +19,18 @@ resource "proxmox_vm_qemu" "talos" {
     agent = 0
     skip_ipv4 = true
     agent_timeout = 5
-    
+
     # VM CPU Settings
     cores = each.value.node_cpu_cores
     sockets = 1
-    cpu = "host"    
-    
+    cpu_type = "host"
+
     # VM Memory Settings
     memory = each.value.node_memory
 
     # VM Network Settings
     network {
+        id     = 0
         bridge = var.proxmox_bridge
         model  = "virtio"
     }
@@ -69,6 +70,11 @@ resource "proxmox_vm_qemu" "talos" {
     # VM Cloud-Init Settings
     os_type = "cloud-init"
     ipconfig0 = each.value.node_ipconfig
+
+    lifecycle {
+        ignore_changes  = all
+        prevent_destroy = true
+    }
 }
 
 output "mac_addrs" {
