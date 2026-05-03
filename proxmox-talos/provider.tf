@@ -12,27 +12,27 @@ terraform {
     # see https://github.com/siderolabs/terraform-provider-talos
     talos = {
       source = "siderolabs/talos"
-      version = "0.7.0"
+      version = "0.11.0"
     }
 
     helm = {
       source  = "hashicorp/helm"
-      version = "2.14.0"
+      version = "3.1.1"
     }
 
     sops = {
       source  = "carlpett/sops"
-      version = "0.7.1"
+      version = "1.4.1"
     }
 
     proxmox = {
       source = "telmate/proxmox"
-      version = "3.0.1-rc3"
+      version = "3.0.1-rc8"
     }
 
     local = {
       source = "hashicorp/local"
-      version = "2.5.2"
+      version = "2.8.0"
     }
 
     kubernetes = {
@@ -47,7 +47,7 @@ terraform {
 
     tls = {
       source = "hashicorp/tls"
-      version = "4.0.5"
+      version = "4.2.1"
     }
   }
 }
@@ -65,16 +65,16 @@ provider "proxmox" {
 }
 
 provider "kubernetes" {
-  host                   = try(data.talos_cluster_kubeconfig.this.kubernetes_client_configuration.host, "")
-  cluster_ca_certificate = try(base64decode(data.talos_cluster_kubeconfig.this.kubernetes_client_configuration.ca_certificate), "")
-  client_key             = try(base64decode(data.talos_cluster_kubeconfig.this.kubernetes_client_configuration.client_key), "")
-  client_certificate     = try(base64decode(data.talos_cluster_kubeconfig.this.kubernetes_client_configuration.client_certificate), "")
+  host                   = try(talos_cluster_kubeconfig.this.kubernetes_client_configuration.host, "")
+  cluster_ca_certificate = try(base64decode(talos_cluster_kubeconfig.this.kubernetes_client_configuration.ca_certificate), "")
+  client_key             = try(base64decode(talos_cluster_kubeconfig.this.kubernetes_client_configuration.client_key), "")
+  client_certificate     = try(base64decode(talos_cluster_kubeconfig.this.kubernetes_client_configuration.client_certificate), "")
 }
 
 provider "kubectl" {
   load_config_file       = false
-  host                   = try(data.talos_cluster_kubeconfig.this.kubernetes_client_configuration.host, "")
-  cluster_ca_certificate = try(base64decode(data.talos_cluster_kubeconfig.this.kubernetes_client_configuration.ca_certificate), "")
-  client_key             = try(base64decode(data.talos_cluster_kubeconfig.this.kubernetes_client_configuration.client_key), "")
-  client_certificate     = try(base64decode(data.talos_cluster_kubeconfig.this.kubernetes_client_configuration.client_certificate), "")
+  host                   = try(talos_cluster_kubeconfig.this.kubernetes_client_configuration.host, "")
+  cluster_ca_certificate = try(base64decode(talos_cluster_kubeconfig.this.kubernetes_client_configuration.ca_certificate), "")
+  client_key             = try(base64decode(talos_cluster_kubeconfig.this.kubernetes_client_configuration.client_key), "")
+  client_certificate     = try(base64decode(talos_cluster_kubeconfig.this.kubernetes_client_configuration.client_certificate), "")
 }
