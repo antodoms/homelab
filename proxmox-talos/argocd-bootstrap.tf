@@ -29,6 +29,6 @@ resource "kubectl_manifest" "bootstrap" {
 
   depends_on = [
     talos_machine_bootstrap.this,
-    data.talos_cluster_kubeconfig.this
+    talos_cluster_kubeconfig.this
   ]
 }
