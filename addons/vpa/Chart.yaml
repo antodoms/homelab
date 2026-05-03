@@ -17,4 +17,3 @@ appVersion: "1.0"
 dependencies:
   - name: vpa
     version: 4.11.0
-    repository: https://charts.fairwinds.com/stable
