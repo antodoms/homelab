@@ -13,5 +13,5 @@ appVersion: "1.0"
 
 dependencies:
 - name: trust-manager
-  version: 0.15.0
+  version: 0.22.1
   repository: https://charts.jetstack.io
