@@ -4,6 +4,9 @@ gateway-helm:
       annotations:
         argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
       ttlSecondsAfterFinished: 300
+    rbac:
+      annotations:
+        argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
   config:
     envoyGateway:
       gateway:
