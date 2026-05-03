@@ -4,6 +4,14 @@ openebs:
       node:
         initContainers:
           enabled: false
+    etcd:
+      resources:
+        requests:
+          cpu: 1m
+          memory: 256Mi
+        limits:
+          cpu: 375m
+          memory: 384Mi
   engines:
     local:
       lvm:
