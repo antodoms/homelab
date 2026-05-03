@@ -1,4 +1,4 @@
 argocd-image-updater:
   image:
     repository: quay.io/argoprojlabs/argocd-image-updater
-    tag: v0.18.0
+    tag: v1.1.1
