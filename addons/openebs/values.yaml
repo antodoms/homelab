@@ -12,6 +12,15 @@ openebs:
         limits:
           cpu: 375m
           memory: 384Mi
+      volumePermissions:
+        resourcesPreset: "none"
+        resources:
+          requests:
+            cpu: 1m
+            memory: 128Mi
+          limits:
+            cpu: 150m
+            memory: 192Mi
   engines:
     local:
       lvm:

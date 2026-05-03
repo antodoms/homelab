@@ -37,6 +37,12 @@ spec:
         duration: 5s
         factor: 2
         maxDuration: 1m
+  ignoreDifferences:
+    - group: batch
+      kind: Job
+      name: openebs-etcd-pre-upgrade
+      jsonPointers:
+        - /spec/template
 ---
 apiVersion: argoproj.io/v1alpha1
 kind: Application
