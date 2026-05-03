@@ -13,18 +13,18 @@ resource "random_password" "prowlarr_api_key" {
   special          = false
 }
 
-resource "kubernetes_namespace" "media-center-operator" {
+resource "kubernetes_namespace_v1" "media-center-operator" {
   metadata {
     name = "media-server-operator"
   }
 
   depends_on = [
     talos_machine_bootstrap.this,
-    data.talos_cluster_kubeconfig.this
+    talos_cluster_kubeconfig.this
   ]
 }
 
-resource "kubernetes_secret" "prowlarr_secrets" {
+resource "kubernetes_secret_v1" "prowlarr_secrets" {
   count = local.media_server_enabled ? 1 : 0
   metadata {
     name = "prowlarr-secrets"
@@ -37,10 +37,10 @@ resource "kubernetes_secret" "prowlarr_secrets" {
 
   type = "generic"
 
-  depends_on = [ kubernetes_namespace.media-center-operator ]
+  depends_on = [ kubernetes_namespace_v1.media-center-operator ]
 }
 
-resource "kubernetes_secret" "mediafusion_secrets" {
+resource "kubernetes_secret_v1" "mediafusion_secrets" {
   count = local.media_server_enabled ? 1 : 0
   metadata {
     name = "mediafusion-secrets"
@@ -55,5 +55,5 @@ resource "kubernetes_secret" "mediafusion_secrets" {
 
   type = "generic"
 
-  depends_on = [ kubernetes_namespace.media-center-operator ]
+  depends_on = [ kubernetes_namespace_v1.media-center-operator ]
 }
