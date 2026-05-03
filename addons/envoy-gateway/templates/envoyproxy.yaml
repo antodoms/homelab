@@ -13,7 +13,7 @@ spec:
           # MetalLB configuration
           metallb.universe.tf/address-pool: default
           {{- if .Values.gateway.loadBalancerIP }}
-          metallb.universe.tf/loadBalancerIPs: {{ .Values.gateway.loadBalancerIP }}
+          metallb.universe.tf/loadBalancerIPs: {{ .Values.gateway.loadBalancerIP | quote }}
           {{- end }}
         externalTrafficPolicy: Local
         # Optional: Preserve client source IP
