@@ -1,5 +1,11 @@
 openebs:
   mayastor:
+    io_engine:
+      resources:
+        limits:
+          hugepages1Gi: "0"
+        requests:
+          hugepages1Gi: "0"
     csi:
       node:
         initContainers:
