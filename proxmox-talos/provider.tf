@@ -27,7 +27,7 @@ terraform {
 
     proxmox = {
       source = "telmate/proxmox"
-      version = "3.0.1-rc9"
+      version = "3.0.1-rc8"
     }
 
     local = {
@@ -65,16 +65,16 @@ provider "proxmox" {
 }
 
 provider "kubernetes" {
-  host                   = try(data.talos_cluster_kubeconfig.this.kubernetes_client_configuration.host, "")
-  cluster_ca_certificate = try(base64decode(data.talos_cluster_kubeconfig.this.kubernetes_client_configuration.ca_certificate), "")
-  client_key             = try(base64decode(data.talos_cluster_kubeconfig.this.kubernetes_client_configuration.client_key), "")
-  client_certificate     = try(base64decode(data.talos_cluster_kubeconfig.this.kubernetes_client_configuration.client_certificate), "")
+  host                   = try(talos_cluster_kubeconfig.this.kubernetes_client_configuration.host, "")
+  cluster_ca_certificate = try(base64decode(talos_cluster_kubeconfig.this.kubernetes_client_configuration.ca_certificate), "")
+  client_key             = try(base64decode(talos_cluster_kubeconfig.this.kubernetes_client_configuration.client_key), "")
+  client_certificate     = try(base64decode(talos_cluster_kubeconfig.this.kubernetes_client_configuration.client_certificate), "")
 }
 
 provider "kubectl" {
   load_config_file       = false
-  host                   = try(data.talos_cluster_kubeconfig.this.kubernetes_client_configuration.host, "")
-  cluster_ca_certificate = try(base64decode(data.talos_cluster_kubeconfig.this.kubernetes_client_configuration.ca_certificate), "")
-  client_key             = try(base64decode(data.talos_cluster_kubeconfig.this.kubernetes_client_configuration.client_key), "")
-  client_certificate     = try(base64decode(data.talos_cluster_kubeconfig.this.kubernetes_client_configuration.client_certificate), "")
+  host                   = try(talos_cluster_kubeconfig.this.kubernetes_client_configuration.host, "")
+  cluster_ca_certificate = try(base64decode(talos_cluster_kubeconfig.this.kubernetes_client_configuration.ca_certificate), "")
+  client_key             = try(base64decode(talos_cluster_kubeconfig.this.kubernetes_client_configuration.client_key), "")
+  client_certificate     = try(base64decode(talos_cluster_kubeconfig.this.kubernetes_client_configuration.client_certificate), "")
 }
