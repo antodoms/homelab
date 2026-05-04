@@ -9,8 +9,57 @@ wazuh:
         requests:
           cpu: 200m
           memory: 512Mi
-      storageSize: 5Gi
+      # 10Gi: VD database alone is ~4.7G; 5Gi was too small and caused disk-full cluster failures
+      storageSize: 10Gi
       storageClass: mayastor-sc
+      # Tune ossec.conf: disable rootcheck/SCA, enable vuln-detector on schedule,
+      # restrict syscheck to critical dirs, ignore container runtime noise,
+      # add a syslog remote listener for Falcosidekick → Wazuh ingestion,
+      # and configure integratord to forward level>=10 alerts to Keep
+      extraConf: |
+        <ossec_config>
+          <rootcheck><disabled>yes</disabled></rootcheck>
+          <sca><enabled>no</enabled></sca>
+          <vulnerability-detector>
+            <enabled>yes</enabled>
+            <interval>24h</interval>
+            <run_on_start>no</run_on_start>
+          </vulnerability-detector>
+          <syscheck>
+            <ignore>/var/log</ignore>
+            <ignore>/var/lib/containerd</ignore>
+            <ignore>/var/lib/kubelet</ignore>
+            <ignore>/var/lib/docker</ignore>
+            <ignore>/run</ignore>
+            <ignore>/tmp</ignore>
+            <ignore type="sregex">.log$|.tmp$|.swp$</ignore>
+            <directories realtime="yes" check_all="yes">/etc,/usr/bin,/usr/sbin,/bin,/sbin</directories>
+          </syscheck>
+          <!-- Syslog listener for Falcosidekick ingestion (replaces hostPath file approach) -->
+          <remote>
+            <connection>syslog</connection>
+            <port>514</port>
+            <protocol>tcp</protocol>
+            <allowed-ips>0.0.0.0/0</allowed-ips>
+          </remote>
+          <!-- Forward level>=10 alerts to Keep via custom integration script -->
+          <integration>
+            <name>custom-keep</name>
+            <hook_url>http://keep-backend.keep.svc.cluster.local:8080/alerts/event/wazuh</hook_url>
+            <level>10</level>
+            <alert_format>json</alert_format>
+          </integration>
+        </ossec_config>
+      # Mount the custom Keep integration script (ConfigMap) into the integrations dir
+      additionalVolumes:
+        - name: keep-integration
+          configMap:
+            name: wazuh-integration-keep
+            defaultMode: 0755
+      additionalVolumeMounts:
+        - name: keep-integration
+          mountPath: /var/ossec/integrations/custom-keep
+          subPath: custom-keep
 
     worker:
       replicas: 1
@@ -23,10 +72,30 @@ wazuh:
           memory: 512Mi
       storageSize: 5Gi
       storageClass: mayastor-sc
+      extraConf: |
+        <ossec_config>
+          <rootcheck><disabled>yes</disabled></rootcheck>
+          <sca><enabled>no</enabled></sca>
+          <!-- VD disabled on worker: only master runs it to avoid filling the 5Gi queue PVC -->
+          <vulnerability-detector>
+            <enabled>no</enabled>
+          </vulnerability-detector>
+          <syscheck>
+            <ignore>/var/log</ignore>
+            <ignore>/var/lib/containerd</ignore>
+            <ignore>/var/lib/kubelet</ignore>
+            <ignore>/var/lib/docker</ignore>
+            <ignore>/run</ignore>
+            <ignore>/tmp</ignore>
+            <ignore type="sregex">.log$|.tmp$|.swp$</ignore>
+            <directories realtime="yes" check_all="yes">/etc,/usr/bin,/usr/sbin,/bin,/sbin</directories>
+          </syscheck>
+        </ossec_config>
 
-    # Custom rules for Falco alerts (decoded by built-in json decoder)
+    # Custom rules for Falco alerts and homelab-specific promotions/suppressions
     localRules: |
       <group name="falco,">
+        <!-- Base Falco catch-all at low level -->
         <rule id="100100" level="3">
           <decoded_as>json</decoded_as>
           <field name="hostname">\.+</field>
@@ -35,6 +104,8 @@ wazuh:
           <description>Falco: $(rule)</description>
           <group>falco,</group>
         </rule>
+
+        <!-- Severity promotion by Falco priority field -->
         <rule id="100101" level="6">
           <if_sid>100100</if_sid>
           <field name="priority">^Notice$</field>
@@ -59,18 +130,49 @@ wazuh:
           <description>Falco Critical: $(rule)</description>
           <group>falco,</group>
         </rule>
+
+        <!-- Promote repeated identical Falco rule on same host: freq>=5 in 120s → level 10 -->
+        <rule id="100110" level="10" frequency="5" timeframe="120">
+          <if_matched_sid>100100</if_matched_sid>
+          <same_field>rule,hostname</same_field>
+          <description>Falco: repeated rule '$(rule)' on $(hostname)</description>
+          <group>falco,repeated,</group>
+        </rule>
+
+        <!-- Suppress Falco Informational/Debug — level 0 drops from OpenSearch -->
+        <rule id="100130" level="0">
+          <if_sid>100100</if_sid>
+          <field name="priority">^Informational$|^Debug$</field>
+          <description>Falco Informational/Debug suppressed</description>
+        </rule>
       </group>
 
-    # Wazuh agent reads Falco alerts from shared hostPath
-    agentGroupConf:
-      - name: default
-        agent: |
-          <agent_config>
-            <localfile>
-              <location>/host/var/log/falco/events.json</location>
-              <log_format>json</log_format>
-            </localfile>
-          </agent_config>
+      <group name="homelab,">
+        <!-- Suppress successful SSH logins from homelab networks (not brute-force) -->
+        <rule id="100200" level="0">
+          <if_sid>5715</if_sid>
+          <srcip>192.168.0.0/16</srcip>
+          <description>SSH login from homelab network suppressed</description>
+        </rule>
+
+        <!-- Suppress FIM events on container runtime paths -->
+        <rule id="100201" level="0">
+          <if_group>syscheck</if_group>
+          <field name="file">/var/lib/containerd|/var/lib/kubelet|/var/lib/docker|/run/containerd</field>
+          <description>FIM: container runtime path suppressed</description>
+        </rule>
+
+        <!-- Promote auth brute-force: freq>=3 from same IP in 60s → level 12 -->
+        <rule id="100210" level="12" frequency="3" timeframe="60">
+          <if_matched_group>authentication_failed</if_matched_group>
+          <same_source_ip />
+          <description>Auth brute-force detected from $(srcip)</description>
+          <group>authentication_failures,pci_dss_10.2.4,pci_dss_10.2.5,gpg13_7.1,gdpr_IV_35.7.d,hipaa_164.312.b,nist_800_53_AU.14,nist_800_53_AC.7,tsc_CC6.1,tsc_CC6.8,tsc_CC7.2,tsc_CC7.3,</group>
+        </rule>
+      </group>
+
+    # Wazuh agent group config (falco hostPath localfile removed — ingestion now via Falcosidekick syslog)
+    agentGroupConf: []
 
   # Wazuh Indexer (OpenSearch)
   indexer:

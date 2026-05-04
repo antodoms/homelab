@@ -3,12 +3,34 @@ keep:
     ingress:
       enabled: false
 
+  # Disable bundled SQLite/postgres — using CNPG cluster (keep-db) instead
+  database:
+    enabled: false
+
   backend:
+    # Use CNPG-generated secret for DB connection.
+    # keep-db-app is created automatically when the CNPG Cluster bootstraps.
+    databaseConnectionStringFromSecret:
+      enabled: true
+      secretName: keep-db-app
+      secretKey: uri
+    # Disable the init container that checks keep-database (bundled postgres hostname).
+    # CNPG cluster (keep-db-rw) is already running so no need to gate on it.
+    waitForDatabase:
+      enabled: false
     env:
       - name: SECRET_MANAGER_TYPE
         value: k8s
       - name: AUTH_TYPE
         value: NO_AUTH
+    livenessProbe:
+      initialDelaySeconds: 120
+      periodSeconds: 10
+      failureThreshold: 6
+    readinessProbe:
+      initialDelaySeconds: 60
+      periodSeconds: 10
+      failureThreshold: 6
 
   frontend:
     env:

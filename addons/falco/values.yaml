@@ -22,28 +22,43 @@ falco:
     log_stderr: true
     log_syslog: false
     log_level: info
-    priority: debug
-    # Write alerts to file for Wazuh agent ingestion
+    priority: notice
     file_output:
-      enabled: true
-      keep_alive: false
-      filename: /var/log/falco/events.json
+      enabled: false
 
-  # Mount host path for Falco log output (shared with Wazuh agent)
-  mounts:
-    volumes:
-      - name: falco-logs
-        hostPath:
-          path: /var/log/falco
-          type: DirectoryOrCreate
-    volumeMounts:
-      - name: falco-logs
-        mountPath: /var/log/falco
-
-  # Falcosidekick for forwarding alerts
+  # Falcosidekick: dual output — syslog to Wazuh (SIEM/forensics) + webhook to Keep (alerting)
   falcosidekick:
     enabled: true
     replicaCount: 1
+    config:
+      # Wazuh manager syslog listener (port 514, configured in wazuh extraConf)
+      syslog:
+        host: "wazuh-manager-master-svc.wazuh.svc.cluster.local"
+        port: "514"
+        protocol: "tcp"
+        minimumpriority: "notice"
+      # Keep direct webhook for immediate alerting (bypasses Wazuh rule promotion)
+      webhook:
+        address: "http://keep-backend.keep:8080/alerts/event/falco"
+        minimumpriority: "notice"
+
+  # Suppress noisy homelab rules
+  customRules:
+    homelab-suppressions.yaml: |-
+      # Disable rule that fires on routine k8s node activity (init containers, sidecars, etc.)
+      - rule: Read sensitive file untrusted
+        override:
+          enabled: replace
+        enabled: false
+
+      # Extend the "known read sensitive file activities" placeholder macro so that any
+      # remaining rules using it skip reads from container runtime paths.
+      - macro: user_known_read_sensitive_files_activities
+        condition: >
+          or fd.name startswith /var/lib/containerd
+          or fd.name startswith /var/lib/kubelet
+        override:
+          condition: append
 
   # Resource limits for homelab
   resources:
