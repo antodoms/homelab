@@ -117,3 +117,8 @@ falco:
 wazuh:
   enable: true
   createNamespace: true
+
+# Keep - open-source alert management and AIOps platform
+keep:
+  enable: true
+  createNamespace: true

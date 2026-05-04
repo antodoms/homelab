@@ -1,0 +1,35 @@
+keep:
+  global:
+    ingress:
+      enabled: false
+
+  backend:
+    env:
+      - name: SECRET_MANAGER_TYPE
+        value: k8s
+      - name: AUTH_TYPE
+        value: NO_AUTH
+
+  frontend:
+    env:
+      - name: NEXTAUTH_SECRET
+        value: changeme
+      - name: NEXTAUTH_URL
+        value: "https://keep.homelab.home"
+      - name: API_URL
+        value: "http://keep-backend:8080"
+      - name: NEXTAUTH_URL_INTERNAL
+        value: "http://keep-frontend:3000"
+
+# Gateway API HTTPRoute
+httproute:
+  enabled: true
+  annotations: {}
+  parentRefs:
+    - group: gateway.networking.k8s.io
+      kind: Gateway
+      name: homelab-gateway
+      namespace: envoy-gateway-system
+      sectionName: https
+  hostnames:
+    - keep.homelab.home
