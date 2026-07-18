@@ -46,6 +46,10 @@ data "talos_machine_configuration" "controller" {
           }
         }
       }
+      cluster = {
+        # allow regular workloads to be scheduled on control plane nodes
+        allowSchedulingOnControlPlanes = true
+      }
     }),
     yamlencode({
       cluster = {
