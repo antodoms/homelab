@@ -9,8 +9,8 @@ wazuh:
         requests:
           cpu: 200m
           memory: 512Mi
-      # 10Gi: VD database alone is ~4.7G; 5Gi was too small and caused disk-full cluster failures
-      storageSize: 10Gi
+      # 20Gi: VD RocksDB feed needs ~7G + headroom for compaction; 10Gi still too small
+      storageSize: 20Gi
       storageClass: mayastor-sc
       # Tune ossec.conf: disable rootcheck/SCA, enable vuln-detector on schedule,
       # restrict syscheck to critical dirs, ignore container runtime noise,
@@ -25,6 +25,12 @@ wazuh:
             <interval>24h</interval>
             <run_on_start>no</run_on_start>
           </vulnerability-detector>
+          <!-- Override upstream chart default of 60m to prevent disk exhaustion -->
+          <vulnerability-detection>
+            <enabled>yes</enabled>
+            <index-status>yes</index-status>
+            <feed-update-interval>24h</feed-update-interval>
+          </vulnerability-detection>
           <syscheck>
             <ignore>/var/log</ignore>
             <ignore>/var/lib/containerd</ignore>
