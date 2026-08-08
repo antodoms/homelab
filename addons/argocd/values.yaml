@@ -10,9 +10,25 @@ argo-cd:
       ## Ref: https://argo-cd.readthedocs.io/en/latest/operator-manual/rbac/#exec-resource
       exec.enabled: true
 
-      # -- Enable local admin user
+      # -- Enable local admin user (kept for CLI/emergency access)
       ## Ref: https://argo-cd.readthedocs.io/en/latest/faq/#how-to-disable-admin-user
       admin.enabled: true
+
+      # Allow secrets:// scheme for helm-secrets SOPS decryption in valueFiles
+      helm.valuesFileSchemes: secrets
+
+      # Dex OIDC connector — client_id/secret injected from argocd-secret via secrets.yaml
+      dex.config: |
+        connectors:
+        - type: oidc
+          id: zoho
+          name: Zoho
+          config:
+            issuer: https://accounts.zoho.com
+            clientID: $dex.zoho.clientID
+            clientSecret: $dex.zoho.clientSecret
+            redirectURI: https://argocd.homelab.home/api/dex/callback
+            scopes: [openid, email, profile]
 
       extension.config: |-
         extensions:
@@ -29,18 +45,33 @@ argo-cd:
       controller.repo.server.timeout.seconds: "180"
       controller.self.heal.timeout.seconds: "5"
       timeout.reconciliation: "180"
-      helm.valuesFileSchemes: >-
-        secrets
+      # TLS is terminated at the envoy gateway; all component-to-component
+      # traffic is plaintext. dexserver.disable.tls also drives the scheme of
+      # the chart-computed server.dex.server URL — without it the server dials
+      # dex over https and fails with "server gave HTTP response to HTTPS
+      # client". These previously leaked in from the terraform bootstrap
+      # install's cmd-params and must be owned here by the chart itself.
+      server.repo.server.plaintext: "true"
+      server.dex.server.plaintext: "true"
+      controller.repo.server.plaintext: "true"
+      applicationsetcontroller.repo.server.plaintext: "true"
+      reposerver.disable.tls: "true"
+      dexserver.disable.tls: "true"
 
   dex:
-    enabled: false
+    enabled: true
     livenessProbe:
       enabled: true
     readinessProbe:
       enabled: true
+    # NB the chart applies these resources to the copyutil init container
+    # too, which cp's the ~200MB argocd binary into an emptyDir. At 128Mi
+    # the copy gets OOMKilled mid-write; on retry `cp -n` sees the partial
+    # file and silently skips, so dex execs a truncated binary and dies
+    # with SIGSEGV (exit 139) and no logs. 256Mi gives the copy headroom.
     resources:
       limits:
-        memory: 128Mi
+        memory: 256Mi
       requests:
         cpu: 10m
         memory: 64Mi
@@ -76,6 +107,19 @@ argo-cd:
     autoscaling:
       enabled: true
       maxReplicas: 3
+    extraEnvs:
+      - name: AWS_ACCESS_KEY_ID
+        valueFrom:
+          secretKeyRef:
+            name: argocd-aws-credentials
+            key: aws_access_key_id
+      - name: AWS_SECRET_ACCESS_KEY
+        valueFrom:
+          secretKeyRef:
+            name: argocd-aws-credentials
+            key: aws_secret_access_key
+      - name: AWS_DEFAULT_REGION
+        value: ap-southeast-2
     resources:
       limits:
         memory: 1024Mi
@@ -100,8 +144,10 @@ argo-cd:
         value: "false"
       - name: HELM_SECRETS_VALUES_ALLOW_ABSOLUTE_PATH
         value: "false"
+      # Needed so secrets://../../config/secrets/homelab.enc.yaml can reach
+      # the central secrets file from each addon's own chart directory.
       - name: HELM_SECRETS_VALUES_ALLOW_PATH_TRAVERSAL
-        value: "false"
+        value: "true"
     volumes:
       - name: custom-tools
         emptyDir: { }

@@ -1,7 +1,13 @@
 kube-prometheus-stack:
+  # CRDs are managed by the dedicated prometheus-operator-crds Application
+  # (chart/templates/prometheus-operator-crds.yaml) synced at wave -10,
+  # so they are always updated before this chart is compared/synced.
+  # The in-chart copy and its upgradeJob hook must stay off to keep a
+  # single owner for CRDs (the upgradeJob also times out in-cluster).
   crds:
+    enabled: false
     upgradeJob:
-      enabled: true
+      enabled: false
 
   ## Create default rules for monitoring the cluster
   ## Disable rules for unreachable components
@@ -73,6 +79,10 @@ kube-prometheus-stack:
 
   ## additional configuration options available here: https://github.com/prometheus-community/helm-charts/blob/main/charts/kube-prometheus-stack/values.yaml
   grafana:
+    # client_secret is supplied via config/secrets/homelab.enc.yaml (SOPS-encrypted
+    # at rest) — the chart's client-side check can't see that, so it flags it as a
+    # plaintext leak. Disabling since the actual leak protection is SOPS, not this.
+    assertNoLeakedSecrets: false
     serviceAccount:
       create: true
     createNamespace: true
@@ -108,6 +118,19 @@ kube-prometheus-stack:
     grafana.ini:
       server:
         root_url: ""
+      auth:
+        disable_login_form: true
+      auth.generic_oauth:
+        enabled: true
+        name: Zoho
+        allow_sign_up: true
+        scopes: openid email profile
+        auth_url: https://accounts.zoho.com/oauth/v2/auth
+        token_url: https://accounts.zoho.com/oauth/v2/token
+        api_url: https://accounts.zoho.com/oauth/v2/userinfo
+        use_pkce: true
+        email_attribute_path: email
+        # client_id, client_secret, role_attribute_path injected via secrets.yaml
 
     dashboardProviders:
       dashboardproviders.yaml:

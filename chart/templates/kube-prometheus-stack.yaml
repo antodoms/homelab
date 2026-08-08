@@ -13,6 +13,11 @@ spec:
     path: addons/kube-prometheus-stack
     targetRevision: {{ .Values.targetRevision }}
     helm:
+      valueFiles:
+        # See addons/argocd.yaml source comment — multi-source $ref is
+        # incompatible with helm-secrets decryption. Plain relative path
+        # + single source avoids the conflict.
+        - secrets://../../config/secrets/homelab.enc.yaml
       values: |
         kube-prometheus-stack:
           prometheus:
@@ -33,12 +38,8 @@ spec:
   ignoreDifferences:
     - group: "*"
       kind: "*"
-      managedFieldsManagers:
-        - argocd-controller
-        - argocd-application-controller
       jsonPointers:
         - /metadata/annotations
-        - /metadata/managedFields
         - /metadata/labels
   syncPolicy:
     managedNamespaceMetadata:

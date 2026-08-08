@@ -13,6 +13,14 @@ spec:
     path: addons/argocd
     targetRevision: {{ .Values.targetRevision }}
     helm:
+      valueFiles:
+        # Multi-source $ref is incompatible with helm-secrets decryption —
+        # ArgoCD never resolves $ref inside a URL scheme, so secrets:// + $ref
+        # either gets rejected outright or (worse) silently skips decryption
+        # and leaks raw SOPS ciphertext into the rendered manifest.
+        # ref: https://github.com/jkroepke/helm-secrets/blob/main/docs/ArgoCD%20Integration.md
+        # Plain relative path + single source avoids the $ref conflict entirely.
+        - secrets://../../config/secrets/homelab.enc.yaml
       values: |
         argo-cd:
         {{- toYaml .Values.argoCd | nindent 10 }}
@@ -35,12 +43,20 @@ spec:
   ignoreDifferences:
     - group: "*"
       kind: "*"
-      managedFieldsManagers:
-        - argocd-controller
-        - argocd-application-controller
+      # managedFieldsManagers must NOT include argocd-controller: combined
+      # with RespectIgnoreDifferences, that makes ArgoCD ignore and re-graft
+      # the live value of every field it itself manages — so a bad apply
+      # (e.g. the SOPS-ciphertext leak into argocd-rbac-cm) can never be
+      # corrected by any later sync. It was a workaround for the duplicate
+      # bootstrap ArgoCD install fighting this one; that controller is now
+      # scaled down.
       jsonPointers:
+        # /metadata/managedFields must NOT be listed here: with
+        # RespectIgnoreDifferences + ServerSideApply, ArgoCD grafts the live
+        # value of each ignored pointer into the apply payload, and the API
+        # server rejects any request with metadata.managedFields set
+        # ("metadata.managedFields must be nil"), failing every resource.
         - /metadata/annotations
-        - /metadata/managedFields
         - /metadata/labels
   syncPolicy:
     syncOptions:

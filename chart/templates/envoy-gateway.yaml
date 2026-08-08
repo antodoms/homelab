@@ -23,12 +23,8 @@ spec:
   ignoreDifferences:
     - group: "*"
       kind: "*"
-      managedFieldsManagers:
-        - argocd-controller
-        - argocd-application-controller
       jsonPointers:
         - /metadata/annotations
-        - /metadata/managedFields
         - /metadata/labels
   syncPolicy:
     syncOptions:

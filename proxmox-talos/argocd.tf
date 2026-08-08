@@ -47,16 +47,16 @@ locals {
 
   argo_repository_secrets = replace(yamlencode({
     "homelab-github-secret" = {
-      "type": "git",
-      "url": "https://github.com/antodoms",
-      "githubAppID": data.sops_file.secrets.data["github_app_id"],
-      "githubAppInstallationID": data.sops_file.secrets.data["github_app_installation"],
-      "githubAppPrivateKey": data.sops_file.secrets.data["github_app_secret"]
+      "type" : "git",
+      "url" : "https://github.com/antodoms",
+      "githubAppID" : data.sops_file.secrets.data["github_app_id"],
+      "githubAppInstallationID" : data.sops_file.secrets.data["github_app_installation"],
+      "githubAppPrivateKey" : data.sops_file.secrets.data["github_app_secret"]
     }
   }), "/((?:^|\n)[\\s-]*)\"([\\w-]+)\":/", "$1$2:")
 
-  argo_repositories = replace(yamlencode({for k in ["antodoms/homelab"] : 
-     join("-", split("/", k)) => { "url": "https://github.com/${k}.git" }
+  argo_repositories = replace(yamlencode({ for k in ["antodoms/homelab"] :
+    join("-", split("/", k)) => { "url" : "https://github.com/${k}.git" }
   }), "/((?:^|\n)[\\s-]*)\"([\\w-]+)\":/", "$1$2:")
 }
 
@@ -73,44 +73,52 @@ locals {
 # see https://argo-cd.readthedocs.io/en/stable/operator-manual/installation/#helm
 # see https://registry.terraform.io/providers/hashicorp/helm/latest/docs/data-sources/template
 data "helm_template" "argocd" {
-  namespace  = local.argocd_namespace
-  name       = "argocd"
+  namespace = local.argocd_namespace
+  # Release name MUST be "argo-cd" — identical to the self-managed `argo-cd`
+  # Application's release name — so this bootstrap render produces the same
+  # resource names (argo-cd-argocd-*) that the Application later adopts and
+  # manages. With any other name (e.g. "argocd"), Talos inlineManifests
+  # re-application creates a SECOND full ArgoCD install whose controller
+  # races the self-managed one (see 2026-08-08 incident: stuck sync hooks,
+  # clobbered operationState, SOPS ciphertext never self-healing).
+  name       = "argo-cd"
   repository = "https://argoproj.github.io/argo-helm"
   chart      = "argo-cd"
   # see https://artifacthub.io/packages/helm/argo/argo-cd
+  # NB keep in lockstep with the dependency version in addons/argocd/Chart.yaml
   # renovate: datasource=helm depName=argo-cd registryUrl=https://argoproj.github.io/argo-helm
-  version      = "9.4.10" # app version 3.0.4
+  version      = "9.5.22"
   kube_version = var.kubernetes_version
   api_versions = []
   values = [
     yamlencode({
-        global = {
+      global = {
         domain = local.argocd_domain
-        }
-        configs = {
+      }
+      configs = {
         params = {
-            # disable tls between the argocd components.
-            "server.insecure"                                = "true"
-            "server.repo.server.plaintext"                   = "true"
-            "server.dex.server.plaintext"                    = "true"
-            "controller.repo.server.plaintext"               = "true"
-            "applicationsetcontroller.repo.server.plaintext" = "true"
-            "reposerver.disable.tls"                         = "true"
-            "dexserver.disable.tls"                          = "true"
+          # disable tls between the argocd components.
+          "server.insecure"                                = "true"
+          "server.repo.server.plaintext"                   = "true"
+          "server.dex.server.plaintext"                    = "true"
+          "controller.repo.server.plaintext"               = "true"
+          "applicationsetcontroller.repo.server.plaintext" = "true"
+          "reposerver.disable.tls"                         = "true"
+          "dexserver.disable.tls"                          = "true"
         }
-        }
-        server = {
+      }
+      server = {
         ingress = {
-            enabled = true
-            tls     = true
+          enabled = true
+          tls     = true
         }
-        }
+      }
     }),
     yamlencode(yamldecode(file("${path.module}/../addons/argocd/values.yaml"))["argo-cd"]),
     templatefile("${path.module}/bootstrap/overrides/argocd-values.yaml.tpl", {
-      ingress_domain = local.ingress_domain
+      ingress_domain          = local.ingress_domain
       argo_repository_secrets = local.argo_repository_secrets
-      argo_repositories = local.argo_repositories
+      argo_repositories       = local.argo_repositories
     })
   ]
 }

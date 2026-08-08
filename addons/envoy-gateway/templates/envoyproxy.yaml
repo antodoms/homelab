@@ -7,6 +7,21 @@ spec:
   provider:
     type: Kubernetes
     kubernetes:
+      envoyDeployment:
+        pod:
+          # Keep the envoy dataplane off control-plane nodes: MetalLB L2
+          # announcement of the gateway LoadBalancer IP (externalTrafficPolicy:
+          # Local) does not work when the only ready endpoint sits on a master
+          # in this cluster — observed 2026-08-08 when a proxy reschedule onto
+          # talos-master-01/-00 left 10.30.0.52 unannounced and every ingress
+          # endpoint unreachable, while worker-hosted LB IPs kept working.
+          affinity:
+            nodeAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+                nodeSelectorTerms:
+                  - matchExpressions:
+                      - key: node-role.kubernetes.io/control-plane
+                        operator: DoesNotExist
       envoyService:
         type: LoadBalancer
         annotations:

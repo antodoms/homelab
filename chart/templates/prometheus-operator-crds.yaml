@@ -1,0 +1,40 @@
+{{- if and (.Values.kubePrometheusStack) (.Values.kubePrometheusStack.enable) -}}
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: prometheus-operator-crds
+  namespace: {{ .Values.argoNamespace | default "argocd" }}
+  annotations:
+    # Must land before kube-prometheus-stack's own sync (wave 0 by default),
+    # otherwise ArgoCD's comparison phase fails outright — outdated CRD
+    # schemas reject fields the new chart version's CRs need, which blocks
+    # sync from even starting (the chart's own crds.upgradeJob never gets
+    # a chance to run since it's a hook inside a sync that can't begin).
+    argocd.argoproj.io/sync-wave: "-10"
+  finalizers:
+  - resources-finalizer.argocd.argoproj.io
+spec:
+  project: {{ .Values.argoProject | default "default" }}
+  source:
+    repoURL: https://github.com/prometheus-operator/prometheus-operator.git
+    targetRevision: v0.90.1
+    path: example/prometheus-operator-crd
+  destination:
+    server: {{ .Values.destinationServer | default "https://kubernetes.default.svc" }}
+    namespace: kube-prometheus-stack
+  syncPolicy:
+    syncOptions:
+      - ServerSideApply=true
+      - CreateNamespace=false
+    automated:
+      selfHeal: true
+      # Never prune CRDs automatically — deleting one deletes every
+      # Prometheus/Alertmanager/etc custom resource cluster-wide.
+      prune: false
+    retry:
+      limit: 3
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 1m
+{{- end -}}

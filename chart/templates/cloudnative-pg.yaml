@@ -22,12 +22,8 @@ spec:
   ignoreDifferences:
     - group: "*"
       kind: "*"
-      managedFieldsManagers:
-        - argocd-controller
-        - argocd-application-controller
       jsonPointers:
         - /metadata/annotations
-        - /metadata/managedFields
         - /metadata/labels
     - group: admissionregistration.k8s.io
       kind: MutatingWebhookConfiguration
