@@ -1,0 +1,48 @@
+---
+# Custom Wazuh integration script that POSTs level>=10 alerts to Keep.
+# Mounted into the manager at /var/ossec/integrations/custom-keep.
+# Wazuh integratord calls: custom-keep <alert_file> <api_key> <hook_url>
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: wazuh-integration-keep
+  namespace: {{ .Release.Namespace }}
+data:
+  custom-keep: |
+    #!/usr/bin/env python3
+    """
+    Wazuh custom integration for Keep alert management platform.
+    Forwards Wazuh JSON alerts to Keep's webhook endpoint.
+    """
+    import json
+    import sys
+    import os
+    import urllib.request
+    import urllib.error
+
+    # Wazuh calls: script <alert_file> <api_key> <hook_url>
+    alert_file = sys.argv[1]
+    hook_url = sys.argv[3] if len(sys.argv) > 3 else os.environ.get(
+        "KEEP_HOOK_URL", "http://keep-backend.keep.svc.cluster.local:8080/alerts/event/wazuh"
+    )
+
+    with open(alert_file) as f:
+        alert = json.load(f)
+
+    payload = json.dumps(alert).encode("utf-8")
+    req = urllib.request.Request(
+        hook_url,
+        data=payload,
+        headers={"Content-Type": "application/json", "User-Agent": "wazuh-integratord/4.x"},
+        method="POST",
+    )
+
+    try:
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            sys.exit(0)
+    except urllib.error.HTTPError as e:
+        sys.stderr.write(f"Keep webhook HTTP error: {e.code} {e.reason}\n")
+        sys.exit(1)
+    except Exception as e:
+        sys.stderr.write(f"Keep webhook error: {e}\n")
+        sys.exit(1)

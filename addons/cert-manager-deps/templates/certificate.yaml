@@ -7,7 +7,7 @@ spec:
   isCA: true
   commonName: "homelab ingress"
   subject:
-    organisations:
+    organizations:
       - "{{ .Values.certManagerDeps.ingressDomain }}"
     organizationalUnits:
       - kubernetes

@@ -1,0 +1,25 @@
+---
+# CloudNativePG cluster for Keep backend database.
+# CNPG auto-creates secret `keep-db-app` with connection credentials
+# (uri, username, password, host, port, dbname).
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: keep-db
+  namespace: {{ .Release.Namespace }}
+spec:
+  instances: 1
+  storage:
+    size: 5Gi
+    storageClass: mayastor-sc
+  bootstrap:
+    initdb:
+      database: keep
+      owner: keep
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi

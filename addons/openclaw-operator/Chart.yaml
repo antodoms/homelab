@@ -9,5 +9,5 @@ appVersion: "1.0"
 
 dependencies:
 - name: openclaw-operator
-  version: 0.17.0
+  version: 0.30.0
   repository: oci://ghcr.io/openclaw-rocks/charts

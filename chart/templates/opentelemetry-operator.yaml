@@ -15,7 +15,7 @@ spec:
     helm:
       values: |
         opentelemetry-operator:
-        {{- toYaml .Values.opentelemetryOperator | nindent 10 }}
+        {{- toYaml (omit .Values.opentelemetryOperator "enable" "createNamespace") | nindent 10 }}
   destination:
     server: {{ .Values.destinationServer | default "https://kubernetes.default.svc" }}
     namespace: opentelemetry-operator-system

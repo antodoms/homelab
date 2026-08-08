@@ -27,7 +27,7 @@ terraform {
 
     proxmox = {
       source = "telmate/proxmox"
-      version = "3.0.1-rc8"
+      version = "3.0.2-rc08"
     }
 
     local = {
@@ -62,6 +62,9 @@ provider "proxmox" {
     pm_user = local.proxmox_username
     pm_password = local.proxmox_password
     pm_tls_insecure = true
+    # Older releases hardcode a check for the VM.Monitor privilege, which was
+    # removed in Proxmox VE 9, so the check fails even for root@pam.
+    pm_minimum_permission_check = false
 }
 
 provider "kubernetes" {

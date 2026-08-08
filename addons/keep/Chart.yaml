@@ -1,0 +1,14 @@
+apiVersion: v2
+name: keep
+description: A Helm chart for Keep - open-source alert management and AIOps platform
+
+type: application
+
+version: 0.1.0
+
+appVersion: "0.49.0"
+
+dependencies:
+- name: keep
+  version: 0.1.95
+  repository: https://keephq.github.io/helm-charts

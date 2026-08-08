@@ -80,7 +80,7 @@ kubeshark:
   createNamespace: true
 
 dockerRegistry:
-  enable: true
+  enable: false
   createNamespace: true
 
 # CloudNativePG operator
@@ -115,5 +115,10 @@ falco:
 
 # Wazuh - SIEM/XDR security platform
 wazuh:
+  enable: true
+  createNamespace: true
+
+# Keep - open-source alert management and AIOps platform
+keep:
   enable: true
   createNamespace: true
