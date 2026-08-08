@@ -1,4 +1,8 @@
 kube-prometheus-stack:
+  crds:
+    upgradeJob:
+      enabled: true
+
   ## Create default rules for monitoring the cluster
   ## Disable rules for unreachable components
   ##
@@ -29,13 +33,13 @@ kube-prometheus-stack:
       ## ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/user-guides/storage.md
       ##
       storageSpec:
-      volumeClaimTemplate:
-        spec:
-          storageClassName: mayastor-sc
-          accessModes: ["ReadWriteOnce"]
-          resources:
-            requests:
-              storage: 30Gi
+        volumeClaimTemplate:
+          spec:
+            storageClassName: mayastor-sc
+            accessModes: ["ReadWriteOnce"]
+            resources:
+              requests:
+                storage: 30Gi
 
   alertmanager:
     config:
