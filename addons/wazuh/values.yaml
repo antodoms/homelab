@@ -197,6 +197,147 @@ wazuh:
       OPENSEARCH_JAVA_OPTS: "-Xms1g -Xmx1g -Dlog4j2.formatMsgNoLookups=true"
     storageSize: 5Gi
     storageClass: mayastor-sc
+    networkPolicy:
+      # OIDC: the indexer's openid_auth_domain fetches Zoho's JWKS over 443
+      extraEgresses:
+        - to:
+            - ipBlock:
+                cidr: 0.0.0.0/0
+          ports:
+            - port: 443
+              protocol: TCP
+    config:
+      # Copy of the chart's built-in roles_mapping template (wazuh-helm 1.0.22,
+      # wazuh.indexer.rolesMapping helper) — tpl directives preserved so the
+      # SOPS-provided sso.oidc.roleMappings.allAccess.backendRoles knob still
+      # flows in. Exactly two changes vs upstream, both for the viewer tier
+      # (any authenticated Zoho account = read-only):
+      #   readall.users:     [] -> ["*"]
+      #   kibana_user.users: [] -> ["*"]
+      # extraRoleMappings can't do this: readall/kibana_user keys already exist
+      # in the rendered file and duplicate YAML keys are parser-dependent.
+      # NB re-diff against the chart helper when the chart version bumps.
+      rolesMapping: |
+        ---
+        # In this file users, backendroles and hosts can be mapped to Open Distro Security roles.
+        # Permissions for Opendistro roles are configured in roles.yml
+
+        _meta:
+          type: "rolesmapping"
+          config_version: 2
+
+        # Define your roles mapping here
+
+        ## Default roles mapping
+
+        all_access:
+          reserved: true
+          hidden: false
+          backend_roles:
+            - "admin"
+          {{- if .Values.dashboard.sso.oidc.roleMappings.allAccess.backendRoles }}
+            {{- toYaml .Values.dashboard.sso.oidc.roleMappings.allAccess.backendRoles | nindent 4 }}
+          {{- end }}
+          {{- if .Values.dashboard.sso.saml.roleMappings.allAccess.backendRoles }}
+            {{- toYaml .Values.dashboard.sso.saml.roleMappings.allAccess.backendRoles | nindent 4 }}
+          {{- end }}
+          hosts: []
+          users: []
+          and_backend_roles: []
+          description: "Maps admin to all_access"
+
+        own_index:
+          reserved: false
+          hidden: false
+          backend_roles: []
+          hosts: []
+          users:
+          - "*"
+          and_backend_roles: []
+          description: "Allow full access to an index named like the username"
+
+        logstash:
+          reserved: false
+          hidden: false
+          backend_roles:
+          - "logstash"
+          hosts: []
+          users: []
+          and_backend_roles: []
+
+        readall:
+          reserved: true
+          hidden: false
+          backend_roles:
+          - "readall"
+          hosts: []
+          users:
+          # Viewer tier: every authenticated (SSO) user may read all indices
+          - "*"
+          and_backend_roles: []
+
+        manage_snapshots:
+          reserved: true
+          hidden: false
+          backend_roles:
+          - "snapshotrestore"
+          hosts: []
+          users: []
+          and_backend_roles: []
+
+        kibana_server:
+          reserved: true
+          hidden: false
+          {{- if .Values.dashboard.sso.oidc.roleMappings.kibanaServer.backendRoles }}
+          backend_roles:
+            {{- toYaml .Values.dashboard.sso.oidc.roleMappings.kibanaServer.backendRoles | nindent 4 }}
+          {{- else }}
+          backend_roles: []
+          {{- end }}
+          {{- if .Values.dashboard.sso.saml.roleMappings.kibanaServer.backendRoles }}
+            {{- toYaml .Values.dashboard.sso.saml.roleMappings.kibanaServer.backendRoles | nindent 4 }}
+          {{- end }}
+          hosts: []
+          users:
+            - "{{ include "wazuh.dashboard.username" . }}"
+          and_backend_roles: []
+
+        kibana_user:
+          reserved: false
+          hidden: false
+          backend_roles:
+            - "kibanauser"
+          {{- if .Values.dashboard.sso.oidc.roleMappings.kibanaUser.backendRoles }}
+            {{- toYaml .Values.dashboard.sso.oidc.roleMappings.kibanaUser.backendRoles | nindent 4 }}
+          {{- end }}
+          {{- if .Values.dashboard.sso.saml.roleMappings.kibanaUser.backendRoles }}
+            {{- toYaml .Values.dashboard.sso.saml.roleMappings.kibanaUser.backendRoles | nindent 4 }}
+          {{- end }}
+          hosts: []
+          users:
+          # Viewer tier: every authenticated (SSO) user gets dashboards access
+          - "*"
+          and_backend_roles: []
+          description: "Maps kibanauser to kibana_user"
+
+        # Wazuh monitoring and statistics index permissions
+        manage_wazuh_index:
+          reserved: true
+          hidden: false
+          backend_roles: []
+          hosts: []
+          users:
+            - "{{ include "wazuh.dashboard.username" . }}"
+          and_backend_roles: []
+
+
+        {{- with .Values.dashboard.sso.oidc.extraRoleMappings }}
+        {{- toYaml . | nindent 0 }}
+        {{- end }}
+
+        {{- with .Values.dashboard.sso.saml.extraRoleMappings }}
+        {{- toYaml . | nindent 0 }}
+        {{- end }}
 
   # Wazuh Dashboard (OpenSearch Dashboards)
   dashboard:
@@ -224,6 +365,34 @@ wazuh:
       httpGet:
         path: /api/status
         port: 5601
+    networkPolicy:
+      # OIDC: dashboard validates tokens against accounts.zoho.com over 443
+      extraEgresses:
+        - to:
+            - ipBlock:
+                cidr: 0.0.0.0/0
+          ports:
+            - port: 443
+              protocol: TCP
+    # Zoho SSO via the chart-native OpenSearch Security OIDC support.
+    # Sensitive values (clientId, clientSecret, admin emails in
+    # roleMappings.allAccess.backendRoles) come from the SOPS-encrypted
+    # config/secrets/homelab.enc.yaml, injected as a secrets:// valueFile on
+    # the Application. rolesKey=email makes each user's email act as their
+    # backend role (Zoho tokens carry no roles claim), so admin emails map to
+    # all_access via the chart knob. basicAuth stays enabled (chart default)
+    # as the break-glass local login.
+    sso:
+      oidc:
+        enabled: true
+        url: https://accounts.zoho.com/.well-known/openid-configuration
+        logoutUrl: https://accounts.zoho.com/logout
+        baseRedirectUrl: https://wazuh.homelab.home
+        scope: "openid email profile"
+        existingSecret: wazuh-oidc-credentials
+        config:
+          subjectKey: email
+          rolesKey: email
 
   # Wazuh Agent DaemonSet
   agent:

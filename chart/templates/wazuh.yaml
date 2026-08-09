@@ -13,6 +13,11 @@ spec:
     path: addons/wazuh
     targetRevision: {{ .Values.targetRevision }}
     helm:
+      valueFiles:
+        # SOPS-encrypted secrets (Zoho OIDC client credentials, admin emails)
+        # decrypted at render time by helm-secrets on the repo-server —
+        # same single-source relative-path pattern as argocd.yaml.
+        - secrets://../../config/secrets/homelab.enc.yaml
       values: |
         wazuh:
         {{- toYaml .Values.wazuh | nindent 10 }}
