@@ -122,3 +122,8 @@ wazuh:
 keep:
   enable: true
   createNamespace: true
+
+# Fleet (fleetdm) - osquery device management for home network devices
+fleet:
+  enable: true
+  createNamespace: true

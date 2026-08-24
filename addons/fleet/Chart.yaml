@@ -1,0 +1,17 @@
+apiVersion: v2
+name: fleet
+description: A Helm chart for Fleet (fleetdm) device management
+
+type: application
+
+# The chart version. This version number should be incremented each time you make changes
+# to the chart and its templates, including the app version.
+version: 0.1.0
+
+# Version number of the application being deployed.
+appVersion: "v4.90.1"
+
+dependencies:
+  - name: fleet
+    version: v7.0.16
+    repository: https://fleetdm.github.io/fleet/charts

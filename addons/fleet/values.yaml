@@ -1,0 +1,78 @@
+# Fleet (fleetdm) — osquery-based device management for the home network.
+# Everything under `fleet:` is the upstream chart's values scope
+# (dependency name "fleet"). MySQL auth and the server private key are NOT
+# set here — they merge in from SOPS via the Application's
+# secrets://../../config/secrets/homelab.enc.yaml valueFiles
+# (fleet.mysql.auth.* and fleetSecrets.serverPrivateKey).
+fleet:
+  replicas: 1
+  resources:
+    limits:
+      cpu: 1
+      # the chart default of 4Gi is only needed when vulnerability scans run
+      # in the main pod; vulnProcessing.dedicated moves them out
+      memory: 1Gi
+    requests:
+      cpu: 0.1
+      memory: 256Mi
+  # CVE processing runs as its own hourly CronJob with burst resources so the
+  # main server pod stays small
+  vulnProcessing:
+    dedicated: true
+  fleet:
+    tls:
+      enabled: false # TLS terminates at the envoy gateway (homelab CA)
+    # With mysql.enabled=true the chart drops its Helm hooks from the
+    # fleet-migration Job and the Job self-deletes via TTL; without these
+    # annotations ArgoCD selfHeal would recreate it in a loop forever.
+    migrationJobAnnotations:
+      argocd.argoproj.io/hook: Sync
+      argocd.argoproj.io/hook-delete-policy: BeforeHookCreation,HookSucceeded
+  database:
+    address: fleet-mysql:3306
+    database: fleet
+    username: fleet
+    secretName: fleet-mysql # rendered by the mysql subchart
+  cache:
+    address: fleet-valkey:6379
+  # legacy condition key — enables the valkey subchart (no auth, no
+  # persistence: cache-only role, loss just drops live-query sessions)
+  redis:
+    enabled: true
+  mysql:
+    enabled: true
+    # auth.rootPassword / auth.password MUST come from SOPS: the subchart's
+    # lookup+randAlphaNum fallback re-randomizes passwords on every ArgoCD
+    # render (repo-server lookup is always empty)
+    primary:
+      persistence:
+        enabled: true
+        size: 10Gi
+        storageClass: mayastor-sc
+  envsFrom:
+    - name: FLEET_SERVER_PRIVATE_KEY
+      valueFrom:
+        secretKeyRef:
+          name: fleet-server-private-key
+          key: private-key
+  # upstream defaults environments.FLEET_SERVER_PRIVATE_KEY: "" — null it out
+  # so the only FLEET_SERVER_PRIVATE_KEY env entry is the envsFrom secretKeyRef
+  environments: null
+
+# Gateway API HTTPRoute (our template)
+httproute:
+  enabled: true
+  annotations: {}
+  parentRefs:
+    - group: gateway.networking.k8s.io
+      kind: Gateway
+      name: homelab-gateway
+      namespace: envoy-gateway-system
+      sectionName: https
+  # [0] is overridden by the Application parameter httproute.hostnames[0]
+  hostnames:
+    - fleet.homelab.home
+
+# SOPS-provided at deploy time; empty default keeps local renders working
+fleetSecrets:
+  serverPrivateKey: ""
