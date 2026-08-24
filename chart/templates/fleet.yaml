@@ -1,0 +1,49 @@
+{{- if and (.Values.fleet) (.Values.fleet.enable) -}}
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: fleet
+  namespace: {{ .Values.argoNamespace | default "argocd" }}
+  finalizers:
+  - resources-finalizer.argocd.argoproj.io
+spec:
+  project: {{ .Values.argoProject | default "default" }}
+  source:
+    repoURL: {{ .Values.repoUrl }}
+    path: addons/fleet
+    targetRevision: {{ .Values.targetRevision }}
+    helm:
+      valueFiles:
+        # SOPS-encrypted secrets (fleet mysql auth, server private key)
+        # decrypted at render time by helm-secrets on the repo-server —
+        # same single-source relative-path pattern as argocd.yaml/wazuh.yaml.
+        - secrets://../../config/secrets/homelab.enc.yaml
+      parameters:
+      - name: httproute.hostnames[0]
+        value: fleet.{{ .Values.ingressDomain }}
+  destination:
+    server: {{ .Values.destinationServer | default "https://kubernetes.default.svc" }}
+    namespace: fleet
+  ignoreDifferences:
+    - group: "*"
+      kind: "*"
+      jsonPointers:
+        - /metadata/annotations
+        - /metadata/labels
+  syncPolicy:
+    syncOptions:
+    - RespectIgnoreDifferences=true
+    - CreateNamespace={{ .Values.fleet.createNamespace }}
+    - ServerSideApply=false
+    automated:
+      selfHeal: true
+      prune: true
+    retry:
+      # deeper than the repo's usual limit:1 — the migration Sync hook fails
+      # until the bundled mysql finishes its first init (~60-90s)
+      limit: 5
+      backoff:
+        duration: 10s
+        factor: 2
+        maxDuration: 2m
+{{- end -}}
