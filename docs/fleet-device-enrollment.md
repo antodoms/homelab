@@ -18,7 +18,8 @@ kubectl -n cert-manager get secret ingress-tls \
 ```
 
 (The `ingress` ClusterIssuer is a self-signed CA; `tls.crt` IS the CA cert.
-It rotates every 180 days — regenerate installers after rotation.)
+It rotates every 180 days (cert-manager renews it early, so expect ~150 days
+effective) — regenerate installers after rotation.)
 
 ## Build fleetd installers
 

@@ -24,15 +24,8 @@ spec:
   destination:
     server: {{ .Values.destinationServer | default "https://kubernetes.default.svc" }}
     namespace: fleet
-  ignoreDifferences:
-    - group: "*"
-      kind: "*"
-      jsonPointers:
-        - /metadata/annotations
-        - /metadata/labels
   syncPolicy:
     syncOptions:
-    - RespectIgnoreDifferences=true
     - CreateNamespace={{ .Values.fleet.createNamespace }}
     - ServerSideApply=false
     automated:

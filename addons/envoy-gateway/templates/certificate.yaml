@@ -8,7 +8,7 @@ spec:
   duration: 4320h # 180 days
   renewBefore: 720h # 30 days
   issuerRef:
-    name: selfsigned
+    name: ingress
     kind: ClusterIssuer
     group: cert-manager.io
   commonName: "*.{{ .Values.ingressDomain }}"

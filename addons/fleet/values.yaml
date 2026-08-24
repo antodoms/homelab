@@ -27,7 +27,7 @@ fleet:
     # annotations ArgoCD selfHeal would recreate it in a loop forever.
     migrationJobAnnotations:
       argocd.argoproj.io/hook: Sync
-      argocd.argoproj.io/hook-delete-policy: HookSucceeded
+      argocd.argoproj.io/hook-delete-policy: BeforeHookCreation,HookSucceeded
   database:
     address: fleet-mysql:3306
     database: fleet
@@ -55,6 +55,9 @@ fleet:
         secretKeyRef:
           name: fleet-server-private-key
           key: private-key
+  # upstream defaults environments.FLEET_SERVER_PRIVATE_KEY: "" — null it out
+  # so the only FLEET_SERVER_PRIVATE_KEY env entry is the envsFrom secretKeyRef
+  environments: null
 
 # Gateway API HTTPRoute (our template)
 httproute:
