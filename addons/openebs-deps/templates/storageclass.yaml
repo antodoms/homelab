@@ -10,3 +10,16 @@ parameters:
   repl: "3"
 provisioner: io.openebs.csi-mayastor
 allowVolumeExpansion: true
+---
+# 2-replica class for volumes that must fit while only two disk pools have
+# free capacity (workers 01/02 are near-full) — still survives one node loss.
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: mayastor-sc-2repl
+parameters:
+  ioTimeout: "30"
+  protocol: nvmf
+  repl: "2"
+provisioner: io.openebs.csi-mayastor
+allowVolumeExpansion: true

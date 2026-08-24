@@ -48,7 +48,9 @@ fleet:
       persistence:
         enabled: true
         size: 10Gi
-        storageClass: mayastor-sc
+        # 2-replica class: the default mayastor-sc (repl:3) cannot place a
+        # third replica while workers 01/02 pools are near-full
+        storageClass: mayastor-sc-2repl
   envsFrom:
     - name: FLEET_SERVER_PRIVATE_KEY
       valueFrom:
