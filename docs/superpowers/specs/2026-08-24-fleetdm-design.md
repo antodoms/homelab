@@ -20,7 +20,9 @@ part of this design.
   out until that ships.
 - Fleet requires **Redis** for live-query sessions and caching.
 - The official Fleet chart (v7.0.16, appVersion v4.90.1 as of this writing)
-  removed its bundled Bitnami MySQL/Redis subcharts — we bring our own.
+  replaced its old Bitnami MySQL/Redis subcharts with its own bundled
+  **minimal MySQL StatefulSet subchart** and a **Valkey** (Redis-compatible)
+  subchart, both off by default (`mysql.enabled` / `redis.enabled`).
 - fleetd agents require TLS. The cluster's ingress TLS comes from the
   self-signed homelab CA (`ingress` ClusterIssuer), so enrollment packages
   must embed the CA cert.
@@ -37,11 +39,15 @@ chart. Decisions made during brainstorming:
   image) rather than an operator (MOCO / Oracle / Percona). One small DB does
   not justify new CRDs; Mayastor's 3-way replication covers node loss. If
   Fleet ships MariaDB support later, migrating to `mariadb-operator` is the
-  CNPG-like end state.
+  CNPG-like end state. The chart's bundled `mysql` subchart is exactly this
+  StatefulSet, so we enable it instead of hand-rolling one.
 - **Wrap the official chart** rather than hand-rolling the server Deployment —
   it handles DB migrations, probes, and env wiring; Renovate bumps versions.
   Chart releases occasionally lag server releases; the image tag can be
   overridden if needed.
+- **Valkey subchart for the cache** (`redis.enabled=true` enables it; the
+  condition key is legacy-named). Redis-protocol compatible, no persistence
+  by default — matches the "cache only" role.
 - **TLS terminates at the gateway** like every other app; Fleet itself runs
   plain HTTP in-cluster (`fleet.tls.enabled=false`).
 
@@ -69,57 +75,90 @@ fleet:
 `Chart.yaml` dependency: `fleet` v7.0.16 from
 `https://fleetdm.github.io/fleet/charts` (Renovate-managed thereafter).
 
-Upstream chart values (under the `fleet:` key in `addons/fleet/values.yaml`):
+Upstream chart values (under the `fleet:` key in `addons/fleet/values.yaml`;
+the release name is `fleet`, so subchart resources come out as `fleet-mysql`
+and `fleet-valkey`, and the server Service is `fleet-service`):
 
 ```yaml
 fleet:
   replicas: 1
+  resources:
+    limits: { cpu: 1, memory: 1Gi }      # the default 4Gi is only needed
+                                         # when vuln scans run in-pod
+  vulnProcessing:
+    dedicated: true                      # CVE scans run in their own hourly
+                                         # CronJob (4Gi burst) instead of the
+                                         # main pod
   fleet:
     tls:
       enabled: false
+    migrationJobAnnotations:
+      argocd.argoproj.io/hook: Sync
+      argocd.argoproj.io/hook-delete-policy: HookSucceeded
   database:
     address: fleet-mysql:3306
-    database: fleet
-    username: fleet
-    secretName: fleet-mysql        # our template renders this Secret
+    secretName: fleet-mysql              # rendered by the mysql subchart
   cache:
-    address: fleet-redis:6379
-  # resources trimmed to homelab scale (~256Mi request / 1Gi limit)
+    address: fleet-valkey:6379
+  redis:
+    enabled: true                        # legacy condition key → valkey subchart
+  mysql:
+    enabled: true
+    primary:
+      persistence: { size: 10Gi, storageClass: mayastor-sc }
+  envsFrom:
+    - name: FLEET_SERVER_PRIVATE_KEY
+      valueFrom:
+        secretKeyRef: { name: fleet-server-private-key, key: private-key }
 ```
 
-Hand-rolled templates in `addons/fleet/templates/`:
+Two chart-behavior gotchas the values above encode:
 
-- **mysql-statefulset.yaml + mysql-service.yaml** — single replica,
-  `mysql:8.4`, 10Gi PVC on `mayastor-sc`, creates database `fleet` and user
-  `fleet` via the image's `MYSQL_DATABASE`/`MYSQL_USER` env, passwords from
-  the `fleet-mysql` Secret.
-- **redis-deployment.yaml + redis-service.yaml** — single replica,
-  `redis:7-alpine`, no auth, no persistence (loss = dropped live-query
-  sessions only).
-- **secrets.yaml** — renders the `fleet-mysql` Secret (root + fleet user
-  passwords, key names matching the upstream chart's `passwordKey`
-  expectation) and the Fleet server private key Secret, all sourced from
-  SOPS-provided values.
+- **Migration job**: with `mysql.enabled=true` the chart drops its Helm
+  hooks from the `fleet-migration` Job, and the Job self-deletes via TTL —
+  under ArgoCD selfHeal it would be recreated in a loop forever. The
+  `migrationJobAnnotations` turn it into an ArgoCD Sync hook that is deleted
+  after success and never tracked as live state.
+- **Deterministic passwords**: the mysql subchart's Secret falls back to
+  `lookup` + `randAlphaNum` when `auth.*` passwords are unset. ArgoCD's
+  repo-server renders with `lookup` empty, so unset passwords would be
+  re-randomized on every sync. `mysql.auth.rootPassword/password` MUST be
+  set explicitly (via SOPS).
+
+Hand-rolled templates in `addons/fleet/templates/` (only two left):
+
+- **secret-server-private-key.yaml** — Secret `fleet-server-private-key`
+  (key `private-key`) from the SOPS-provided `fleetSecrets.serverPrivateKey`,
+  consumed via the chart's `envsFrom`.
 - **httproute.yaml** — `homelab-gateway` https listener parentRef, hostname
-  injected by the root chart, backend `fleet` service port 8080 (same shape
+  injected by the root chart, backend `fleet-service` port 8080 (same shape
   as keep's httproute).
 
 ### 3. Secrets (`config/secrets/homelab.enc.yaml`)
 
-New SOPS keys (added with `sops` — mind the helm-secrets gotcha: keys must be
-encrypted in place, never committed as plaintext):
+New SOPS keys (added to the plaintext working copy, then `make encrypt` —
+never commit the plaintext file; it is gitignored). Top-level keys mirror the
+addon chart's values scope, so the mysql passwords merge straight into the
+subchart:
 
 ```yaml
 fleet:
-  mysqlRootPassword: <generated>
-  mysqlPassword: <generated>          # fleet user
-  serverPrivateKey: <32+ random chars> # FLEET_SERVER_PRIVATE_KEY — required
-                                       # by newer Fleet features, cheap to set now
+  mysql:
+    auth:
+      rootPassword: <generated>
+      password: <generated>            # fleet user
+
+fleetSecrets:
+  serverPrivateKey: <openssl rand -base64 32>  # FLEET_SERVER_PRIVATE_KEY —
+                                               # required by newer Fleet
+                                               # features, cheap to set now
 ```
 
-The exact upstream-chart mechanism for wiring `FLEET_SERVER_PRIVATE_KEY`
-(dedicated value vs `extraEnvFrom`) is confirmed at implementation time
-against chart v7.0.16's values.
+The private key reaches the server as an env var via the chart's `envsFrom`
++ our `fleet-server-private-key` Secret (kept out of the Deployment manifest,
+unlike the chart's plaintext `environments` map). The extra top-level keys
+flow into every app that mounts the shared enc file (wazuh, argo-cd) as
+unused values — harmless, same as the existing cross-app keys.
 
 ### 4. Device enrollment (ops, post-deploy)
 
@@ -144,21 +183,26 @@ external exposure (real cert + tunnel/port-forward) would be its own design.
 
 ## Error handling
 
-- First sync: Fleet pods crashloop until MySQL finishes initializing; ArgoCD
-  selfHeal + retry converges without intervention.
+- First sync: the migration Sync-hook Job fails until the bundled MySQL
+  finishes initializing, and Fleet pods crashloop until migrations complete.
+  The Application sets a deeper retry (`limit: 5`) than the repo's usual 1 so
+  the first install converges without a manual sync.
 - Upgrades: `autoApplySQLMigrations=true` runs migrations automatically.
 - MySQL pod loss: StatefulSet reschedules and remounts the Mayastor volume
   (3-way replicated).
-- Redis loss: in-flight live queries drop; no durable state affected.
+- Valkey loss: in-flight live queries drop; no durable state affected.
 
 ## Verification
 
 1. `helm dependency build addons/fleet` and `helm template` render cleanly.
-2. ArgoCD app syncs healthy; MySQL, Redis, and Fleet pods all Ready.
-3. Fleet UI reachable at `https://fleet.homelab.home` with homelab-CA TLS;
+2. ArgoCD app syncs healthy; MySQL, Valkey, and Fleet pods all Ready.
+3. The live `fleet-mysql` Secret matches the SOPS plaintext (guards the
+   helm-secrets silent-ciphertext-passthrough failure mode).
+4. Fleet UI reachable at `https://fleet.homelab.home` with homelab-CA TLS;
    initial admin setup completes.
-4. One real device enrolls via a fleetd package built with the CA cert and
-   appears in the Hosts list.
+5. One real device enrolls via a fleetd package built with the CA cert
+   (`ingress-tls` Secret in the `cert-manager` namespace) and appears in
+   the Hosts list.
 
 ## Out of scope
 
