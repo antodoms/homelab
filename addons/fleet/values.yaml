@@ -28,6 +28,12 @@ fleet:
     migrationJobAnnotations:
       argocd.argoproj.io/hook: Sync
       argocd.argoproj.io/hook-delete-policy: BeforeHookCreation,HookSucceeded
+    # Windows MDM: WSTEP identity pair, served from our "fleet" Secret
+    # (templates/secret-fleet.yaml, PEMs from SOPS fleetSecrets.*)
+    mdm:
+      windows:
+        wstepIdentityCertKey: wstep-identity-cert.pem
+        wstepIdentityKeyKey: wstep-identity-key.pem
   database:
     address: fleet-mysql:3306
     database: fleet
@@ -75,6 +81,8 @@ httproute:
   hostnames:
     - fleet.homelab.home
 
-# SOPS-provided at deploy time; empty default keeps local renders working
+# SOPS-provided at deploy time; empty defaults keep local renders working
 fleetSecrets:
   serverPrivateKey: ""
+  wstepIdentityCert: ""
+  wstepIdentityKey: ""
