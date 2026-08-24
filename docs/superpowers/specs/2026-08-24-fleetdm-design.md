@@ -23,9 +23,16 @@ part of this design.
   replaced its old Bitnami MySQL/Redis subcharts with its own bundled
   **minimal MySQL StatefulSet subchart** and a **Valkey** (Redis-compatible)
   subchart, both off by default (`mysql.enabled` / `redis.enabled`).
-- fleetd agents require TLS. The cluster's ingress TLS comes from the
-  self-signed homelab CA (`ingress` ClusterIssuer), so enrollment packages
-  must embed the CA cert.
+- fleetd agents require TLS and verify against a trust anchor baked into
+  each installer. **Implementation correction:** the gateway's serving cert
+  (`homelab-gateway-tls`) was originally issued by the `selfsigned`
+  ClusterIssuer as a standalone leaf — NOT chained to the `ingress` CA this
+  spec assumed, which would have failed every enrollment. As part of this
+  work the gateway Certificate's `issuerRef` was switched to the `ingress`
+  CA ClusterIssuer, making the CA a stable trust anchor: enrollment
+  packages embed the CA cert (`ingress-tls` in `cert-manager`), and leaf
+  rotations no longer invalidate enrolled agents. Side effect: all
+  `*.homelab.home` apps now present CA-signed certs.
 
 ## Approach
 
