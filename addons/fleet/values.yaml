@@ -20,6 +20,9 @@ fleet:
   vulnProcessing:
     dedicated: true
   fleet:
+    # temporary: debugging iOS MDM check-in rejections (unsigned messages)
+    logging:
+      debug: true
     tls:
       enabled: false # TLS terminates at the envoy gateway (homelab CA)
     # With mysql.enabled=true the chart drops its Helm hooks from the
