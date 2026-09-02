@@ -17,7 +17,7 @@ terraform {
 
     helm = {
       source  = "hashicorp/helm"
-      version = "3.1.1"
+      version = "3.1.2"
     }
 
     sops = {
@@ -27,7 +27,7 @@ terraform {
 
     proxmox = {
       source = "telmate/proxmox"
-      version = "3.0.2-rc08"
+      version = "3.0.2-rc10"
     }
 
     local = {
