@@ -3,6 +3,11 @@ kind: OpenClawInstance
 metadata:
   name: openclaw
 spec:
+  # Pinned: :latest now refuses cron state written before 2026-07-01 and asks
+  # to upgrade through 2026.9.7 first. Bump deliberately from here.
+  image:
+    repository: ghcr.io/openclaw/openclaw
+    tag: "2026.9.7"
   envFrom:
     - secretRef:
         name: openclaw-api-keys
