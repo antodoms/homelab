@@ -1,0 +1,30 @@
+{{- if and (.Values.claudeAgent) (.Values.claudeAgent.enable) -}}
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: claude-agent
+  namespace: {{ .Values.argoNamespace | default "argocd" }}
+  finalizers:
+  - resources-finalizer.argocd.argoproj.io
+spec:
+  project: {{ .Values.argoProject | default "default" }}
+  source:
+    repoURL: {{ .Values.repoUrl }}
+    path: addons/claude-agent
+    targetRevision: {{ .Values.targetRevision }}
+  destination:
+    server: {{ .Values.destinationServer | default "https://kubernetes.default.svc" }}
+    namespace: claude-agent
+  syncPolicy:
+    syncOptions:
+    - CreateNamespace={{ .Values.claudeAgent.createNamespace }}
+    automated:
+      selfHeal: true
+      prune: true
+    retry:
+      limit: 1
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 1m
+{{- end -}}

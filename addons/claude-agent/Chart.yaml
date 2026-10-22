@@ -1,0 +1,11 @@
+apiVersion: v2
+name: claude-agent
+description: Claude Code running in-cluster as a Remote Control server with read-only Kubernetes access
+type: application
+
+# The chart version. This version number should be incremented each time you make changes
+# to the chart and its templates, including the app version.
+version: 0.1.0
+
+# Version number of the application being deployed.
+appVersion: "1.0"

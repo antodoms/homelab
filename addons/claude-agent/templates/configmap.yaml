@@ -1,0 +1,88 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: claude-agent
+  labels:
+    app.kubernetes.io/name: claude-agent
+data:
+  entrypoint.sh: |
+    #!/bin/bash
+    set -euo pipefail
+    mkdir -p "$HOME/.local/bin" "$HOME/.claude"
+
+    # CLIs live on the PVC; reinstall only when missing or the pin changes
+    if [ ! -f "$HOME/.local/bin/.kubectl-$KUBECTL_VERSION" ]; then
+      curl -fsSLo "$HOME/.local/bin/kubectl" "https://dl.k8s.io/release/$KUBECTL_VERSION/bin/linux/amd64/kubectl"
+      chmod +x "$HOME/.local/bin/kubectl"
+      rm -f "$HOME"/.local/bin/.kubectl-*
+      touch "$HOME/.local/bin/.kubectl-$KUBECTL_VERSION"
+    fi
+    # Claude Code keeps itself up to date after the first install
+    command -v claude >/dev/null || npm install -g --prefix "$HOME/.npm-global" @anthropic-ai/claude-code
+
+    if [ -d "$WORKSPACE/.git" ]; then
+      git -C "$WORKSPACE" pull --ff-only || echo "repo pull failed, continuing with existing checkout"
+    else
+      git clone "$REPO_URL" "$WORKSPACE" || mkdir -p "$WORKSPACE"
+    fi
+
+    cp /opt/claude-agent/CLAUDE.md "$HOME/.claude/CLAUDE.md"
+    cp /opt/claude-agent/settings.json "$HOME/.claude/settings.json"
+    install -m 0755 /opt/claude-agent/setup.sh "$HOME/.local/bin/claude-agent-setup"
+
+    # Remote Control needs a full claude.ai login and a trusted workspace,
+    # both interactive — done once via `claude-agent-setup` (docs/claude-agent.md)
+    until [ -f "$HOME/.claude-agent-ready" ]; do
+      echo "waiting for one-time setup: kubectl -n {{ .Release.Namespace }} exec -it deploy/claude-agent -- claude-agent-setup"
+      sleep 60
+    done
+
+    cd "$WORKSPACE"
+    exec claude remote-control --name "$SESSION_NAME" --spawn same-dir
+
+  setup.sh: |
+    #!/bin/bash
+    set -euo pipefail
+    claude auth login
+    cd "$WORKSPACE"
+    echo
+    echo "Starting Claude once in $WORKSPACE: accept the trust prompt, optionally"
+    echo "try 'run kubectl get nodes', then /exit to hand over to the server."
+    claude
+    touch "$HOME/.claude-agent-ready"
+    echo "Done. The pod starts the Remote Control server within a minute."
+
+  CLAUDE.md: |
+    # In-cluster homelab agent
+
+    You are running as a pod inside Anto's Talos Linux homelab cluster, reached
+    remotely through Remote Control. The working directory is a checkout of the
+    GitOps repo (antodoms/homelab) that ArgoCD syncs from.
+
+    - Kubernetes access is the pod's ServiceAccount: read-only (`view` plus
+      cluster-scoped and CRD reads), no Secrets. `kubectl` uses it automatically.
+    - There is no talosctl, kubeconfig, or SOPS/AWS access here.
+    - Diagnose live state with kubectl; map what you find back to files in the
+      repo (addons/*, chart/*, proxmox-talos/*).
+    - Never try to change the cluster directly. Propose fixes as repo changes
+      for a PR; ArgoCD applies them after merge.
+    - Run `git pull` before reading repo files if the question is about recent changes.
+
+  settings.json: |
+    {
+      "permissions": {
+        "allow": [
+          "Bash(kubectl get:*)",
+          "Bash(kubectl describe:*)",
+          "Bash(kubectl logs:*)",
+          "Bash(kubectl top:*)",
+          "Bash(kubectl events:*)",
+          "Bash(kubectl explain:*)",
+          "Bash(kubectl api-resources:*)",
+          "Bash(kubectl auth can-i:*)",
+          "Bash(git pull:*)",
+          "Bash(git log:*)",
+          "Bash(git diff:*)"
+        ]
+      }
+    }

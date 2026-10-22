@@ -1,0 +1,26 @@
+# Egress-only: DNS, HTTPS (Anthropic, npm, dl.k8s.io, GitHub) and the
+# Kubernetes API on the control-plane nodes. No ingress — Remote Control
+# connects outbound. Only enforced once a policy-aware CNI (e.g. Cilium) is
+# enabled; the default Talos flannel ignores it.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: claude-agent
+  labels:
+    app.kubernetes.io/name: claude-agent
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: claude-agent
+  policyTypes: [Ingress, Egress]
+  egress:
+    - ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53
+    - ports:
+        - protocol: TCP
+          port: 443
+        - protocol: TCP
+          port: 6443
