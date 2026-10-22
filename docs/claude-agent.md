@@ -28,7 +28,19 @@ kubectl -n claude-agent exec -it deploy/claude-agent -- claude-agent-setup
 1. Follow the `claude auth login` prompt (claude.ai account, paste the code).
 2. Claude starts in `~/homelab`: accept the trust prompt, optionally ask it to
    `kubectl get nodes`, then `/exit`.
-3. Within a minute the pod starts `claude remote-control --name homelab-cluster`.
+3. It then runs `claude remote-control` once: answer `y` to the one-time
+   "Enable Remote Control?" confirmation, wait for the session URL, and press
+   Ctrl+C.
+4. Within a minute the pod starts `claude remote-control --name homelab-cluster`.
+
+If you set it up before the confirmation step existed and the phone shows no
+session, the pod's server is stuck on that prompt. Accept it once and restart:
+
+```sh
+kubectl -n claude-agent exec -it deploy/claude-agent -- bash -c 'cd ~/homelab && claude remote-control --spawn session'
+# answer y, wait for the session URL, Ctrl+C
+kubectl -n claude-agent rollout restart deploy/claude-agent
+```
 
 The login and trust live on the `claude-agent-home` PVC, so restarts don't
 need this again. Re-run the setup if the login expires or the PVC is lost.
