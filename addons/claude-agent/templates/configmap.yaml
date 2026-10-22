@@ -38,7 +38,8 @@ data:
     done
 
     cd "$WORKSPACE"
-    exec claude remote-control --name "$SESSION_NAME" --spawn same-dir
+    # stdin closed so an unanswered prompt exits (and restarts) instead of hanging
+    exec claude remote-control --name "$SESSION_NAME" --spawn same-dir </dev/null
 
   setup.sh: |
     #!/bin/bash
@@ -49,6 +50,12 @@ data:
     echo "Starting Claude once in $WORKSPACE: accept the trust prompt, optionally"
     echo "try 'run kubectl get nodes', then /exit to hand over to the server."
     claude
+    echo
+    echo "Now accepting Remote Control's one-time confirmation: answer y, wait for"
+    echo "the session URL, then press Ctrl+C."
+    trap 'true' INT # Ctrl+C stops claude, not this script
+    claude remote-control --name "$SESSION_NAME-setup" --spawn session || true
+    trap - INT
     touch "$HOME/.claude-agent-ready"
     echo "Done. The pod starts the Remote Control server within a minute."
 
