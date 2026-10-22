@@ -8,6 +8,12 @@ spec:
   image:
     repository: ghcr.io/openclaw/openclaw
     tag: "2026.9.7"
+  # The operator mounts /tmp as an emptyDir (mode 02777, no sticky bit), which
+  # OpenClaw's fs-safe temp workspace check rejects. Point TMPDIR at a sticky
+  # dir instead (openclaw/openclaw#156985, workaround as in #164067).
+  env:
+    - name: TMPDIR
+      value: /var/tmp/openclaw
   envFrom:
     - secretRef:
         name: openclaw-api-keys
@@ -35,6 +41,15 @@ spec:
       size: 10Gi
   
   initContainers:
+    - name: init-sticky-tmp
+      image: busybox:1.37
+      command:
+        - sh
+        - -c
+        - mkdir -p /sticky-tmp/tmp && chmod 1777 /sticky-tmp/tmp
+      volumeMounts:
+        - name: sticky-tmp
+          mountPath: /sticky-tmp
     - name: install-models
       image: busybox:1.37
       command:
@@ -64,6 +79,8 @@ spec:
           mountPath: /extra-bin
 
   extraVolumes:
+    - name: sticky-tmp
+      emptyDir: {}
     - name: models-config
       configMap:
         name: openclaw-models
@@ -82,6 +99,9 @@ spec:
         server: {{ .Values.nfsshare.server }}
         path: {{ .Values.nfsshare.path }}
   extraVolumeMounts:
+    - name: sticky-tmp
+      mountPath: /var/tmp/openclaw
+      subPath: tmp
     - name: extra-bin
       mountPath: /usr/local/extra-bin
     - name: gog-config
