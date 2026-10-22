@@ -114,6 +114,7 @@ A fully GitOps-managed Kubernetes homelab running on Proxmox with Talos Linux, p
 | AdGuard | v0.107.28 | DNS-level ad blocking |
 | OpenClaw Operator | 0.17.0 | Custom operator |
 | Homebridge | - | Apple HomeKit bridge |
+| Claude Agent | - | In-cluster Claude Code Remote Control server, read-only cluster access ([docs](docs/claude-agent.md)) |
 
 ## Repository Structure
 

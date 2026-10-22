@@ -1,0 +1,65 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: claude-agent
+  labels:
+    app.kubernetes.io/name: claude-agent
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate # RWO home volume, and one Remote Control server at a time
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: claude-agent
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: claude-agent
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+    spec:
+      serviceAccountName: claude-agent
+      securityContext:
+        runAsUser: 1000 # "node" user in the node image
+        runAsGroup: 1000
+        fsGroup: 1000
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: claude-agent
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: ["/bin/bash", "/opt/claude-agent/entrypoint.sh"]
+          env:
+            - name: HOME
+              value: /home/node
+            - name: PATH
+              value: /home/node/.local/bin:/home/node/.npm-global/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+            - name: WORKSPACE
+              value: /home/node/homelab
+            - name: REPO_URL
+              value: {{ .Values.repoUrl | quote }}
+            - name: KUBECTL_VERSION
+              value: {{ .Values.kubectlVersion | quote }}
+            - name: SESSION_NAME
+              value: {{ .Values.sessionName | quote }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: [ALL]
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            - name: home
+              mountPath: /home/node
+            - name: config
+              mountPath: /opt/claude-agent
+              readOnly: true
+      volumes:
+        - name: home
+          persistentVolumeClaim:
+            claimName: claude-agent-home
+        - name: config
+          configMap:
+            name: claude-agent

@@ -1,0 +1,66 @@
+# Claude Code as an always-on Remote Control server inside the cluster, so
+# the cluster can be queried from the Claude app while away from home.
+# Talks to the Kubernetes API with its own read-only ServiceAccount — no
+# kubeconfig, talosconfig or SOPS/AWS access.
+#
+# Auth is a one-time interactive `claude auth login` (Remote Control does not
+# accept API keys or `claude setup-token` tokens), persisted on the PVC.
+# See docs/claude-agent.md.
+
+image:
+  repository: node
+  tag: 22-bookworm # has curl + git; claude/kubectl are installed onto the PVC
+  pullPolicy: IfNotPresent
+
+# Session name shown in claude.ai/code and the Claude app
+sessionName: homelab-cluster
+
+# Repo cloned as the working directory so the agent can read the GitOps config
+repoUrl: https://github.com/antodoms/homelab.git
+
+kubectlVersion: v1.32.0 # match the cluster's Kubernetes version
+
+persistence:
+  storageClass: mayastor-sc-2repl
+  size: 5Gi
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 256Mi
+  limits:
+    cpu: 1
+    memory: 2Gi
+
+rbac:
+  # Built-in aggregated `view` role (namespaced reads, excludes Secrets) plus
+  # the cluster-scoped and CRD reads below. Read-only: fixes go through PRs.
+  extraReadRules:
+    - apiGroups: [""]
+      resources: [nodes, persistentvolumes, namespaces]
+    - apiGroups: [storage.k8s.io]
+      resources: [storageclasses, volumeattachments, csinodes]
+    - apiGroups: [apiextensions.k8s.io]
+      resources: [customresourcedefinitions]
+    - apiGroups: [metrics.k8s.io]
+      resources: [nodes, pods]
+    - apiGroups: [rbac.authorization.k8s.io]
+      resources: [clusterroles, clusterrolebindings, roles, rolebindings]
+    - apiGroups: [admissionregistration.k8s.io]
+      resources: [validatingwebhookconfigurations, mutatingwebhookconfigurations]
+    - apiGroups: [argoproj.io]
+      resources: [applications, appprojects]
+    - apiGroups: [cert-manager.io, trust.cert-manager.io]
+      resources: ["*"]
+    - apiGroups: [gateway.networking.k8s.io, gateway.envoyproxy.io]
+      resources: ["*"]
+    - apiGroups: [openebs.io]
+      resources: ["*"]
+    - apiGroups: [metallb.io]
+      resources: ["*"]
+    - apiGroups: [postgresql.cnpg.io]
+      resources: ["*"]
+    - apiGroups: [monitoring.coreos.com]
+      resources: ["*"]
+    - apiGroups: [autoscaling.k8s.io]
+      resources: ["*"]

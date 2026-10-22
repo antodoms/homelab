@@ -127,3 +127,7 @@ keep:
 fleet:
   enable: true
   createNamespace: true
+# Claude agent - Claude Code Remote Control server with read-only cluster access
+claudeAgent:
+  enable: true
+  createNamespace: true
