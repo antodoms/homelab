@@ -1,0 +1,5 @@
+metrics-server:
+  args:
+    # Talos kubelets serve self-signed certs unless rotate-server-certificates
+    # is enabled (commented out in proxmox-talos/machineconfig.tf)
+    - --kubelet-insecure-tls
