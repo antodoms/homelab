@@ -48,8 +48,10 @@ need this again. Re-run the setup if the login expires or the PVC is lost.
 ## Using it
 
 Open the Claude app → Code, pick the **homelab-cluster** session (or start a
-new one on that environment) and ask away. Read-only kubectl commands are
-pre-approved in `~/.claude/settings.json`; anything else asks you first.
+new one on that environment) and ask away. Sessions start in auto mode
+(`permissionMode` in values), so routine commands run without prompting;
+read-only kubectl commands are also pre-approved in `~/.claude/settings.json`.
+Set `permissionMode: default` to approve every other command yourself.
 
 ```sh
 kubectl -n claude-agent logs deploy/claude-agent   # server status / session URL

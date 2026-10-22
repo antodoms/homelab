@@ -15,6 +15,11 @@ image:
 # Session name shown in claude.ai/code and the Claude app
 sessionName: homelab-cluster
 
+# Starting permission mode for sessions. `auto` lets a classifier approve
+# routine commands instead of prompting each one; the read-only RBAC is
+# still the hard limit on what kubectl can do.
+permissionMode: auto
+
 # Repo cloned as the working directory so the agent can read the GitOps config
 repoUrl: https://github.com/antodoms/homelab.git
 

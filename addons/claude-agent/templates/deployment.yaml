@@ -44,6 +44,8 @@ spec:
               value: {{ .Values.kubectlVersion | quote }}
             - name: SESSION_NAME
               value: {{ .Values.sessionName | quote }}
+            - name: PERMISSION_MODE
+              value: {{ .Values.permissionMode | quote }}
           securityContext:
             allowPrivilegeEscalation: false
             capabilities:
