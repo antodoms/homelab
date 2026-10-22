@@ -39,7 +39,7 @@ data:
 
     cd "$WORKSPACE"
     # stdin closed so an unanswered prompt exits (and restarts) instead of hanging
-    exec claude remote-control --name "$SESSION_NAME" --spawn same-dir </dev/null
+    exec claude remote-control --name "$SESSION_NAME" --spawn same-dir --permission-mode "$PERMISSION_MODE" </dev/null
 
   setup.sh: |
     #!/bin/bash
@@ -78,6 +78,7 @@ data:
   settings.json: |
     {
       "permissions": {
+        "defaultMode": {{ .Values.permissionMode | quote }},
         "allow": [
           "Bash(kubectl get:*)",
           "Bash(kubectl describe:*)",
