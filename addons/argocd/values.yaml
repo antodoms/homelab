@@ -107,17 +107,15 @@ argo-cd:
     autoscaling:
       enabled: true
       maxReplicas: 3
+    # SOPS/KMS auth via IAM Roles Anywhere: the AWS config's credential_process
+    # runs aws_signing_helper with the cert-manager client cert, so there is no
+    # static key to rotate. Static AWS_* key env vars would take precedence, so
+    # don't add them back.
     extraEnvs:
-      - name: AWS_ACCESS_KEY_ID
-        valueFrom:
-          secretKeyRef:
-            name: argocd-aws-credentials
-            key: aws_access_key_id
-      - name: AWS_SECRET_ACCESS_KEY
-        valueFrom:
-          secretKeyRef:
-            name: argocd-aws-credentials
-            key: aws_secret_access_key
+      - name: AWS_CONFIG_FILE
+        value: /aws/config
+      - name: AWS_SDK_LOAD_CONFIG
+        value: "1"
       - name: AWS_DEFAULT_REGION
         value: ap-southeast-2
     resources:
@@ -151,9 +149,25 @@ argo-cd:
     volumes:
       - name: custom-tools
         emptyDir: { }
+      # optional so a missing CA/config only breaks SOPS apps, not the
+      # repo-server itself. Secret/ConfigMap volumes pick up renewals live.
+      - name: rolesanywhere-cert
+        secret:
+          secretName: argocd-repo-server-rolesanywhere
+          optional: true
+      - name: aws-config
+        configMap:
+          name: argocd-aws-config
+          optional: true
     volumeMounts:
       - mountPath: /custom-tools
         name: custom-tools
+      - mountPath: /rolesanywhere
+        name: rolesanywhere-cert
+        readOnly: true
+      - mountPath: /aws
+        name: aws-config
+        readOnly: true
     initContainers:
       - name: download-tools
         image: alpine:latest
@@ -167,6 +181,8 @@ argo-cd:
             value: "0.37.3"
           - name: SOPS_VERSION
             value: "3.8.1"
+          - name: AWS_SIGNING_HELPER_VERSION
+            value: "1.7.0"
         args:
           - |
             mkdir -p /custom-tools/helm-plugins
@@ -175,6 +191,7 @@ argo-cd:
             sed -i '/^platformCommand:/,/^[^ ]/{ /^platformCommand:/d; /^  /d; }' /custom-tools/helm-plugins/helm-secrets/plugin.yaml
             wget -qO /custom-tools/sops https://github.com/getsops/sops/releases/download/v${SOPS_VERSION}/sops-v${SOPS_VERSION}.linux.amd64
             wget -qO /custom-tools/kubectl https://dl.k8s.io/release/v${KUBECTL_VERSION}/bin/linux/amd64/kubectl
+            wget -qO /custom-tools/aws_signing_helper https://rolesanywhere.amazonaws.com/releases/${AWS_SIGNING_HELPER_VERSION}/X86_64/Linux/aws_signing_helper
             chmod +x /custom-tools/*
         volumeMounts:
           - mountPath: /custom-tools
