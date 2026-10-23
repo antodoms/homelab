@@ -15,16 +15,6 @@ import {
   id = "media-server-operator/mediafusion-secrets"
 }
 
-import {
-  to = kubernetes_secret_v1.openclaw_api_keys[0]
-  id = "openclaw-operator-system/openclaw-api-keys"
-}
-
-import {
-  to = kubernetes_namespace_v1.openclaw_operator_system[0]
-  id = "openclaw-operator-system"
-}
-
 
 import {
   to = module.compute_master["hp-gpu"].proxmox_vm_qemu.talos["0"]
