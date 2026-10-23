@@ -39,7 +39,7 @@ A fully GitOps-managed Kubernetes homelab running on Proxmox with Talos Linux, p
 │  │ Observability        │ │ Data         │ │ Applications                         │  │
 │  │                      │ │              │ │                                      │  │
 │  │ Prometheus + Grafana │ │ CloudNativePG│ │ Media Server   AdGuard   Homebridge  │  │
-│  │ OpenTelemetry   VPA  │ │              │ │ OpenClaw Operator                    │  │
+│  │ OpenTelemetry   VPA  │ │              │ │                                      │  │
 │  └──────────────────────┘ └──────────────┘ └──────────────────────────────────────┘  │
 └─────────────────────────────────────────────────────────────────────────────────────┘
 
@@ -112,7 +112,6 @@ A fully GitOps-managed Kubernetes homelab running on Proxmox with Talos Linux, p
 | CloudNativePG | 0.27.1 | PostgreSQL operator |
 | Media Server Operator | - | Media library management |
 | AdGuard | v0.107.28 | DNS-level ad blocking |
-| OpenClaw Operator | 0.17.0 | Custom operator |
 | Homebridge | - | Apple HomeKit bridge |
 | Claude Agent | - | In-cluster Claude Code Remote Control server, read-only cluster access ([docs](docs/claude-agent.md)) |
 

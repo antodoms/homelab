@@ -108,11 +108,6 @@ openobserveCollector:
   enable: false
   createNamespace: true
 
-# OpenClaw Operator
-openclawOperator:
-  enable: true
-  createNamespace: false # namespace is created by terraform
-
 # Falco - runtime security monitoring
 falco:
   enable: true
