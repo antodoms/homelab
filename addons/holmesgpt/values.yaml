@@ -1,0 +1,62 @@
+# In-cluster LLM server (templates/llama-cpp.yaml). CPU-only for now; the
+# RX 470 passthrough work will switch this to the Vulkan image.
+llamaCpp:
+  image: ghcr.io/ggml-org/llama.cpp:server-b11749
+  # Downloaded on first start into the models PVC. Qwen3-4B-Instruct-2507 is
+  # Apache-2.0, ~2.5GB at Q4_K_M, and handles tool calling.
+  hfRepo: unsloth/Qwen3-4B-Instruct-2507-GGUF:Q4_K_M
+  alias: qwen3-4b
+  # Holmes prompts are large; keep in sync with OVERRIDE_MAX_CONTENT_SIZE.
+  ctxSize: 32768
+  threads: 4
+  storage:
+    size: 10Gi
+  resources:
+    requests:
+      cpu: "2"
+      memory: 6Gi
+    limits:
+      memory: 10Gi
+
+holmes:
+  enableTelemetry: false
+
+  # Read-only ClusterRole from the chart (no secrets, no write verbs).
+  createServiceAccount: true
+
+  # Point the model list at the in-cluster llama.cpp server so cluster data
+  # (logs, events, metrics) never leaves the cluster.
+  modelList:
+    qwen3-4b:
+      model: openai/qwen3-4b
+      api_base: http://llama-cpp.holmesgpt.svc.cluster.local:8080/v1
+      api_key: not-needed
+
+  additionalEnvVars:
+    # litellm doesn't know a self-hosted model's limits.
+    - name: OVERRIDE_MAX_CONTENT_SIZE
+      value: "32768"
+    - name: OVERRIDE_MAX_OUTPUT_TOKEN
+      value: "4096"
+
+  toolsets:
+    kubernetes/core:
+      enabled: true
+    kubernetes/logs:
+      enabled: true
+    prometheus/metrics:
+      enabled: true
+      config:
+        prometheus_url: http://kube-prometheus-stack-prometheus.kube-prometheus-stack.svc.cluster.local:9090
+    skills:
+      enabled: true
+    # Keep Holmes in-cluster and read-only: no Robusta SaaS, no web fetches,
+    # no shell.
+    robusta:
+      enabled: false
+    internet:
+      enabled: false
+    connectivity_check:
+      enabled: false
+    bash:
+      enabled: false

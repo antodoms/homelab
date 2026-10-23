@@ -1,5 +1,5 @@
-# Egress-only: DNS, HTTPS (Anthropic, npm, dl.k8s.io, GitHub) and the
-# Kubernetes API on the control-plane nodes. No ingress — Remote Control
+# Egress-only: DNS, HTTPS (Anthropic, npm, dl.k8s.io, GitHub), the
+# Kubernetes API on the control-plane nodes and the HolmesGPT API. No ingress — Remote Control
 # connects outbound. Only enforced once a policy-aware CNI (e.g. Cilium) is
 # enabled; the default Talos flannel ignores it.
 apiVersion: networking.k8s.io/v1
@@ -24,3 +24,11 @@ spec:
           port: 443
         - protocol: TCP
           port: 6443
+    # HolmesGPT API (Service :80 -> pod :5050)
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: holmesgpt
+      ports:
+        - protocol: TCP
+          port: 5050
