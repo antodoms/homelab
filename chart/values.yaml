@@ -136,3 +136,9 @@ fleet:
 claudeAgent:
   enable: true
   createNamespace: true
+
+# HolmesGPT - AI troubleshooting agent with an in-cluster llama.cpp model;
+# claude-agent queries it instead of reading logs directly
+holmesgpt:
+  enable: true
+  createNamespace: true

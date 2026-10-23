@@ -74,6 +74,10 @@ data:
     - Never try to change the cluster directly. Propose fixes as repo changes
       for a PR; ArgoCD applies them after merge.
     - Run `git pull` before reading repo files if the question is about recent changes.
+    - For log-level investigation, ask HolmesGPT (in-cluster, local model)
+      rather than reading pod logs yourself, and work from its summary:
+      `curl -s http://holmesgpt-holmes.holmesgpt.svc/api/chat -H 'Content-Type: application/json' -d '{"ask": "<question>"}'`
+      It runs on CPU, so expect answers to take minutes.
 
   settings.json: |
     {
