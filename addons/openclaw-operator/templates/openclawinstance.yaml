@@ -5,9 +5,12 @@ metadata:
 spec:
   # Pinned: :latest now refuses cron state written before 2026-07-01 and asks
   # to upgrade through 2026.9.7 first. Bump deliberately from here.
+  # Temporarily on 2026.9.5: 2026.9.7's doctor refuses the retired Telegram
+  # JSON state on the PVC until `openclaw doctor --fix` has run on 2026.9.5.
+  # Bump back to 2026.9.7 once that's done.
   image:
     repository: ghcr.io/openclaw/openclaw
-    tag: "2026.9.7"
+    tag: "2026.9.5"
   envFrom:
     - secretRef:
         name: openclaw-api-keys
