@@ -35,6 +35,22 @@ spec:
       size: 10Gi
   
   initContainers:
+    # 2026.9.7's doctor refuses to start when the temp workspace's ancestor is
+    # group/world writable without the sticky bit. The operator's /tmp emptyDir
+    # is root-owned 2777 (fsGroup), so restore normal /tmp perms as root.
+    - name: fix-tmp-perms
+      image: busybox:1.37
+      command: ["chmod", "1777", "/tmp"]
+      securityContext:
+        runAsUser: 0
+        runAsNonRoot: false
+        allowPrivilegeEscalation: false
+        readOnlyRootFilesystem: true
+        capabilities:
+          drop: ["ALL"]
+      volumeMounts:
+        - name: tmp
+          mountPath: /tmp
     - name: install-models
       image: busybox:1.37
       command:
