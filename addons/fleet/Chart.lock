@@ -1,6 +1,6 @@
 dependencies:
 - name: fleet
   repository: https://fleetdm.github.io/fleet/charts
-  version: v7.0.29
-digest: sha256:47706494919498396276f0fa491e792ac9c35d3fff4055936fc5f4bcc8e95cfb
-generated: "2026-10-21T11:31:18.428472037Z"
+  version: v7.0.31
+digest: sha256:be657c66c78f4f6c79679bedaa56c90f99548595502bda32c624da8992e93389
+generated: "2026-11-04T14:07:25.485912776Z"
